@@ -1,2 +1,2 @@
-# Tire-Management-
-Creating an on campus accessibility mapper so student can navigate through resources on campus and student org events.
+# TireTracks
+A web application for managing tire inventory, suppliers, and stock levels, built with a Supabase backend.
