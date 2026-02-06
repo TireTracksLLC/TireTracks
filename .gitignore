@@ -1,0 +1,25 @@
+# -----------------------------
+# Python / Flask
+# -----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+
+# Virtual environments (VERY IMPORTANT)
+venv/
+backend/venv/
+
+# VS Code settings
+.vscode/
+
+# Mac / Windows junk files
+.DS_Store
+Thumbs.db
+
+# Node (frontend may need this later)
+node_modules/
+dist/
+build/
