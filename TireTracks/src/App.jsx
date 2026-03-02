@@ -1,16 +1,15 @@
-import {BrowserRouter as Router, Routes, Route, RouterContextProvider} from 'react-router-dom';
-import Homepage from './Homepage.jsx';
-import Navbar from './Navbar.jsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './Pages/Home.jsx';
+import Navbar from './Components/Navbar.jsx';
+import About from './Pages/About.jsx';
 
 export default function App() {
     return (
-    <Router>
-        <Navbar />
-        <Routes>
-            <Route path="/" element={<Homepage />} />
-        </Routes>
-    </Router>
+        <Router>
+            <Routes>
+                <Route path="/" element={<><Navbar/><Home/></>} />
+                <Route path="/About" element={<About />} />
+            </Routes>
+        </Router>
     )
 }
-
-
