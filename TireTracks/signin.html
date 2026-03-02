@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In - TireTracks</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .card { max-width: 420px; margin: 60px auto; padding: 20px; background: white; border-radius: 12px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; }
+    .error { color: red; margin-top: 8px; }
+    .ok { color: green; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sign In</h1>
+
+    <form id="signinForm" novalidate>
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email" required />
+
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="current-password" required />
+
+      <button class="button-style" type="submit">Sign In</button>
+    </form>
+
+    <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
+
+    <div id="msg" class="error" aria-live="polite"></div>
+  </div>
+
+  <script type="module">
+    import { supabase } from "./supabaseClient.js";
+
+    const form = document.getElementById("signinForm");
+    const msg = document.getElementById("msg");
+
+    function showError(text) {
+      msg.className = "error";
+      msg.textContent = text;
+    }
+    function showOk(text) {
+      msg.className = "ok";
+      msg.textContent = text;
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      // Validation
+      if (!isValidEmail(email)) return showError("Please enter a valid email.");
+      if (password.length < 6) return showError("Password must be at least 6 characters.");
+
+      // Supabase sign-in
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return showError(error.message);
+
+      showOk("Signed in! Redirecting...");
+      // Change this to whatever page you want after login:
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
