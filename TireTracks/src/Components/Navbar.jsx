@@ -1,7 +1,7 @@
 export default function Navbar() 
     { 
         return ( 
-            <nav className= "Nav"> 
+            <nav className= "nav"> 
                 <a href="/" className= "site-title"> TireTracks </a> 
                     <ul> 
                         <li> 

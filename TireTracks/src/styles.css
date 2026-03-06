@@ -19,7 +19,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 80px; 
+    height: 7vh; 
     background-color: red;
     color: black;
     display: flex;
@@ -64,6 +64,14 @@ body {
     border-radius: 20px;
     padding: 10px 30px;
     cursor: pointer;
+}
+
+.card {
+  max-width: 420px; 
+  margin: 60px auto; 
+  padding: 20px; 
+  background: grey; 
+  border-radius: 12px;
 }
 
 .homepage {
@@ -127,4 +135,62 @@ input {
   padding: 10px;
   border: none;
   border-bottom: 1px solid #ccc;
+}
+
+
+
+.About-Overlay{
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  flex-direction: column;
+}
+
+.About-Overlay > * {
+  flex: 1;
+}
+
+.AboutCard1{
+  background-color: #7a0e0a;
+  justify-content: center;
+  padding: 0px 150px;
+}
+
+.AboutCard1 h1 {
+  font-size: larger;
+}
+
+
+
+.AboutCard2{
+  background-color: #CA2722;
+}
+
+.AboutText{
+  display: flex;
+  justify-content: center;
+}
+
+.AboutText div{
+  border: 2px solid black;
+  padding: 30px;
+  justify-content: center;
+  align-items: center;
+  gap: -10rem;
+}
+
+.AboutText p {
+  border: 1px solid black;
+}
+
+.AboutDividerImg{
+  object-fit: cover;
+  width: 100%;
+  height: 100%
+}
+
+.ServiceBackground{
+  background-color: #3f0604;
+  height: 100vh;
+
 }
