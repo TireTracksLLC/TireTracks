@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
+import { useNavigate } from "react-router-dom";
+import '../Dashboard.css'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [recentTires, setRecentTires] = useState([]);
   const [addMsg, setAddMsg] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Get user + recent tires
   useEffect(() => {
@@ -14,7 +18,16 @@ export default function Dashboard() {
 
   async function getUser() {
     const { data } = await supabase.auth.getUser();
+    if(!data.user){
+      navigate('/SignIn');
+      return;
+    }
     setUser(data.user);
+  }
+
+  async function handleSignOut(){
+    await supabase.auth.signOut()
+    navigate("/SignIn")
   }
 
   async function fetchRecentTires() {
@@ -80,7 +93,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
 
-      {/* SIDEBAR */}
+      {/* sidebar */}
       <aside className="sidebar">
         <h2>TireTracks</h2>
 
@@ -90,17 +103,35 @@ export default function Dashboard() {
         </nav>
 
         <div className="profile">
-          <p>{user ? user.email : "Not signed in"}</p>
+          {user ? (
+            <div className="dropdown">
+              <button
+                className="dropdown-button"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                {user.email}
+              </button>
+
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <button onClick={() => alert("Settings clicked")}>Settings</button>
+                  <button onClick={handleSignOut}>Sign Out</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>Not signed in</p>
+          )}
         </div>
       </aside>
 
-      {/* MAIN */}
+      {/* main*/}
       <main className="main">
 
         <h1>Dashboard</h1>
 
-        {/* RECENT TIRES */}
-        <div className="card">
+        {/* shows the recent tires */}
+        <div className="d-card">
           <h2>Recent Inventory</h2>
 
           {recentTires.length === 0 ? (
@@ -129,8 +160,8 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* ADD TIRE */}
-        <div className="card">
+        {/* adding tires to database*/}
+        <div className="d-card">
           <h2>Add Tire</h2>
 
           <form onSubmit={handleAdd}>

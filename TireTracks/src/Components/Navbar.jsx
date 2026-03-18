@@ -1,4 +1,5 @@
-import {Link, Element} from 'react-scroll'
+import {Link as ScrollLink} from 'react-scroll'
+import {Link as RouterLink} from 'react-router-dom'
 
 export default function Navbar() 
     { 
@@ -7,16 +8,18 @@ export default function Navbar()
                 <a href="/" className= "site-title"> TireTracks </a> 
                     <ul> 
                         <li> 
-                            <Link activeClass= 'active' to='homepage' spy={true} smooth={true} duration={500} >Home</Link> 
+                            <ScrollLink activeClass= 'active' to='homepage' spy={true} smooth={true} duration={500} >Home</ScrollLink> 
                         </li> 
                         <li> 
-                            <Link activeClass= 'active' to='About' spy={true} smooth={true} duration={500}>About</Link> 
+                            <ScrollLink activeClass= 'active' to='About' spy={true} smooth={true} duration={500}>About</ScrollLink> 
                         </li> 
                         <li> 
-                            <Link activeClass= 'active' to='Services' spy={true} smooth={true} duration={500}>Services</Link> 
+                            <ScrollLink activeClass= 'active' to='Services' spy={true} smooth={true} duration={500}>Services</ScrollLink> 
                         </li> 
                     </ul> 
-                <button className="sign-in">Sign In</button> 
+                <RouterLink to='/SignIn'>
+                    <button className="sign-in">Sign In</button>
+                </RouterLink> 
             </nav> 
         ) 
     }

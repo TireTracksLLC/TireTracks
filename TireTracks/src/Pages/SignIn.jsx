@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { supabase } from "../../supabaseClient"
+import '../SignIn.css'
 
 export default function SignIn() {
   const [email, setEmail] = useState("")
@@ -41,44 +42,42 @@ export default function SignIn() {
     setMessage("Signed in! Redirecting...")
 
     // Redirect (React way)
-    window.location.href = "/"
+    window.location.href = "/Dashboard"
   }
 
   return (
-    <div className="card">
-      <h1>Sign In</h1>
+       <body className="signIn-Body">
+        <div className="signIn-Card">
+          <h1>Sign In</h1>
 
-      <form onSubmit={handleSubmit} noValidate>
-        <label>Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-          required
-        />
+          <form onSubmit={handleSubmit} noValidate>
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
 
-        <label>Password</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-          required
-        />
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
 
-        <button className="button-style" type="submit">
-          Sign In
-        </button>
-      </form>
+            <button className="button-style" type="submit">
+              Sign In
+            </button>
+          </form>
 
-      <p>
-        Don’t have an account? <a href="/signup">Sign Up</a>
-      </p>
-
-      <div className={isError ? "error" : "ok"}>
-        {message}
-      </div>
-    </div>
+          <div className={isError ? "error" : "ok"}>
+            {message}
+          </div>
+        </div>
+      </body> 
   )
 }

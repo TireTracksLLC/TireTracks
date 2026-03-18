@@ -1,0 +1,21 @@
+.signIn-Card{
+    background-color: #7a0e0a !important;
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+}
+
+.signIn-Card h1{
+    font-size: 28px;
+    font-family: 'Times New Roman', Times, serif, sans-serif;
+}
+
+.signIn-Body{
+    background-image: radial-gradient(#7a0e0a, black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+}
