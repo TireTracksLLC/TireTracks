@@ -1,7 +1,7 @@
 
 export default function About() {
     return (
-        <section className AboutBackground>
+        <section className= 'About'>
             <div className='About-Overlay'>
                 <div className='AboutCard'>
                     <h1>Our Commitment to Tireshops</h1> 

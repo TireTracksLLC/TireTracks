@@ -1,3 +1,5 @@
+import {Link, Element} from 'react-scroll'
+
 export default function Navbar() 
     { 
         return ( 
@@ -5,16 +7,13 @@ export default function Navbar()
                 <a href="/" className= "site-title"> TireTracks </a> 
                     <ul> 
                         <li> 
-                            <a href="/">Home</a> 
+                            <Link activeClass= 'active' to='homepage' spy={true} smooth={true} duration={500} >Home</Link> 
                         </li> 
                         <li> 
-                            <a href="/About">About</a> 
+                            <Link activeClass= 'active' to='About' spy={true} smooth={true} duration={500}>About</Link> 
                         </li> 
                         <li> 
-                            <a href="/Contact">Contact</a> 
-                        </li> 
-                        <li> 
-                            <a href="/Services">Services</a> 
+                            <Link activeClass= 'active' to='Services' spy={true} smooth={true} duration={500}>Services</Link> 
                         </li> 
                     </ul> 
                 <button className="sign-in">Sign In</button> 
