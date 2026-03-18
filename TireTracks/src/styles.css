@@ -106,8 +106,8 @@ body {
 
 /* CONTACT CARD */
 .contact-card {
-  background: red;
-  color: black;
+  background: #7a0e0a;
+  color: white;
   padding: 25px;
   border-radius: 12px;
   width: 500px;
@@ -135,6 +135,7 @@ input {
   padding: 10px;
   border: none;
   border-bottom: 1px solid #ccc;
+  color: white;
 }
 
 
@@ -144,47 +145,56 @@ input {
   height: 100vh;
   width: 100%;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .About-Overlay > * {
   flex: 1;
 }
 
-.AboutCard1{
+.AboutCard{
   background-color: #7a0e0a;
-  justify-content: center;
-  padding: 0px 150px;
+  width: 100%;
 }
 
-.AboutCard1 h1 {
-  font-size: larger;
-}
+.AboutCard h1 {
+  font-size: 40px;
+  margin: 0;
+  position: relative;
 
-
-
-.AboutCard2{
-  background-color: #CA2722;
+  top: 25px;
 }
 
 .AboutText{
   display: flex;
   justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  margin-left: 150px;
+  margin-right: 150px;
+  position: relative;
+  top: 10px;
 }
 
 .AboutText div{
-  border: 2px solid black;
-  padding: 30px;
   justify-content: center;
   align-items: center;
-  gap: -10rem;
+  display: flex;
+  flex-direction: column;
+  height: 250px;
+  width: 450px;
+  padding: 10px;
 }
 
-.AboutText p {
-  border: 1px solid black;
+.AboutText p{
+  width: 100%;
+  text-align: left;
+  justify-content: center;
 }
 
 .AboutDividerImg{
-  object-fit: cover;
   width: 100%;
   height: 100%
 }
@@ -192,5 +202,9 @@ input {
 .ServiceBackground{
   background-color: #3f0604;
   height: 100vh;
-
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
+
