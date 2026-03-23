@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../../TireTracks/supabaseClient";
+import { supabase } from "../../supabaseClient";
 import '../Dashboard.css'
 import { getUser } from "../Services/auth";
 import { useNavigate } from "react-router-dom";

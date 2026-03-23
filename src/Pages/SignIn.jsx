@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { supabase } from "../../TireTracks/supabaseClient"
+import { supabase } from "../../supabaseClient"
 import '../SignIn.css'
 import { signIn } from "../Services/auth"
 
