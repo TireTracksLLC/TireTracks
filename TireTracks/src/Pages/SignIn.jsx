@@ -18,7 +18,8 @@ export default function SignIn() {
 
     if (!isValidEmail(email)) {
       setIsError(true)
-      return setMessage("Please enter a valid email.")
+      setMessage("Please enter a valid email.")
+      return
     }
 
     const {error} = await signIn(email, password)
@@ -40,29 +41,31 @@ export default function SignIn() {
         <div className="signIn-Card">
           <h1>Sign In</h1>
 
-          <form onSubmit={handleSubmit} noValidate>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-            />
+        <form onSubmit={handleSubmit} noValidate>
+          <label>Email</label>
+          <input
+            className="signIn-input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
 
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
+          <label>Password</label>
+          <input
+            className="signIn-input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
 
-            <button className="button-style" type="submit">
-              Sign In
-            </button>
-          </form>
+          <button className="signIn-button" type="submit">
+            Sign In
+          </button>
+        </form>
 
           <div className={isError ? "error" : "ok"}>
             {message}

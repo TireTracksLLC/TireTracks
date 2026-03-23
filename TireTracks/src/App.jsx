@@ -1,23 +1,30 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './Components/Home.jsx';
-import Navbar from './Components/Navbar.jsx';
-import About from './Components/About.jsx';
-import Services from './Components/Services.jsx';
-import SignIn from './Pages/SignIn.jsx';
-import Dashboard from './Pages/Dashboard.jsx';
-import LookupInventory from './LookupInventory.jsx';
-import ManageInventory from './ManageInventory.jsx';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import Navbar from "./Components/Navbar.jsx"
+import Home from "./Components/Home.jsx"
+import About from "./Components/About.jsx"
+import Services from "./Components/Services.jsx"
+import SignIn from "./Pages/SignIn.jsx"
+import Dashboard from "./Pages/Dashboard.jsx"
+
+function HomePage() {
+  return (
+    <>
+      <Navbar />
+      <Home />
+      <About />
+      <Services />
+    </>
+  )
+}
 
 export default function App() {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<><Navbar/><Home/><About/><Services/></>} />
-                <Route path='/SignIn' element={<SignIn />} />
-                <Route path='/Dashboard' element={<Dashboard/>} />
-                <Route path="/Lookup" element={<LookupInventory/>}/>
-                <Route path="/Manage" element={<ManageInventory/>}/>
-            </Routes>
-        </Router>
-    )
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/SignIn" element={<SignIn />} />
+        <Route path="/Dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
+  )
 }
