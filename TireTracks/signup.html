@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up - TireTracks</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .card { max-width: 420px; margin: 60px auto; padding: 20px; background: white; border-radius: 12px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; }
+    .error { color: crimson; margin-top: 8px; }
+    .ok { color: green; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Sign Up</h1>
+
+    <form id="signupForm" novalidate>
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email" required />
+
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="new-password" required />
+
+      <label>Confirm Password</label>
+      <input id="confirm" type="password" autocomplete="new-password" required />
+
+      <button class="button-style" type="submit">Create Account</button>
+    </form>
+
+    <p>Already have an account? <a href="signin.html">Sign In</a></p>
+
+    <div id="msg" class="error" aria-live="polite"></div>
+  </div>
+
+  <script type="module">
+    import { supabase } from "./supabaseClient.js";
+
+    const form = document.getElementById("signupForm");
+    const msg = document.getElementById("msg");
+
+    function showError(text) {
+      msg.className = "error";
+      msg.textContent = text;
+    }
+    function showOk(text) {
+      msg.className = "ok";
+      msg.textContent = text;
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+
+      // Validation
+      if (!isValidEmail(email)) return showError("Please enter a valid email.");
+      if (password.length < 6) return showError("Password must be at least 6 characters.");
+      if (password !== confirm) return showError("Passwords do not match.");
+
+      // Supabase sign-up
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        // optional: add metadata
+        options: {
+          data: { app: "TireTracks" }
+        }
+      });
+
+      if (error) return showError(error.message);
+
+      // If email confirmations are ON, user may need to confirm first.
+      showOk("Account created! Check your email to confirm, then sign in.");
+      // or redirect:
+      // window.location.href = "signin.html";
+    });
+  </script>
+</body>
+</html>
