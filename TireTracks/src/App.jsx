@@ -5,6 +5,7 @@ import About from "./Components/About.jsx"
 import Services from "./Components/Services.jsx"
 import SignIn from "./Pages/SignIn.jsx"
 import Dashboard from "./Pages/Dashboard.jsx"
+import Inventory from "./Pages/Inventory.jsx"
 
 function HomePage() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/SignIn" element={<SignIn />} />
         <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path='/Inventory' element={<Inventory />} />
       </Routes>
     </Router>
   )

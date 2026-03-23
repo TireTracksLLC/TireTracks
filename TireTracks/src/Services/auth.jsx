@@ -14,14 +14,11 @@ export async function signIn(email, password){
 }
 
 export async function signOut(){
-    await supabase.auth.signOut()
-    navigate("/SignIn")
+    return await supabase.auth.signOut()
   }
 
 export async function getUser() {
-    const { data, error } = await supabase.auth.getUser();
-    
-    if (error) return null;
-    return data.user
-  }
+    const { data } = await supabase.auth.getUser();
+    return data.user || null
+}
 

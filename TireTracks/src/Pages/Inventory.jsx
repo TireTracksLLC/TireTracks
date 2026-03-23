@@ -10,6 +10,7 @@ export default function Inventory() {
   const [message, setMessage] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [addMsg, setAddMsg] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -100,14 +101,46 @@ export default function Inventory() {
   return (
     <div className="dashboard">
 
-      {/* sidebar */}
       <aside className="sidebar">
-        <h2>TireTracks</h2>
+        <div className="sidebar-top">
+          <h2 className="logo">TireTracks</h2>
 
-        <nav>
-          <button onClick={() => navigate("/Dashboard")}>Dashboard</button>
-          <button onClick={() => navigate("/inventory")}>Inventory</button>
-        </nav>
+          <nav className="sidebar-nav">
+            <button className="nav-btn active" onClick={() => navigate("/dashboard")}>
+              Dashboard
+            </button>
+            <button className="nav-btn" onClick={() => navigate("/inventory")}>
+              Inventory
+            </button>
+          </nav>
+        </div>
+
+        <div className="profile">
+          {user ? (
+            <div className="dropdown">
+              <button
+                className="dropdown-button"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                type="button"
+              >
+                {user.email}
+              </button>
+
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <button type="button" onClick={() => alert("Settings clicked")}>
+                    Settings
+                  </button>
+                  <button type="button" onClick={handleSignOut}>
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>Not signed in</p>
+          )}
+        </div>
       </aside>
 
       {/* main */}

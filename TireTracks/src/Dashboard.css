@@ -3,7 +3,7 @@
   grid-template-columns: 250px 1fr;
   min-height: 100vh;
   font-family: Arial, sans-serif;
-  background: #636a70;
+  background-image: radial-gradient(#7a0e0a, black);
   color: white;
 }
 
@@ -17,7 +17,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  position: fixed;
+  position: relative;
+  width: 100%;
+  height: 100vh;
   left: 0;
   padding: 24px 16px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -48,7 +50,6 @@
   color: #d7dbe0;
   padding: 12px 14px;
   border-radius: 10px;
-  width: 1000px;
   text-align: left;
   font-size: 0.95rem;
   cursor: pointer;
@@ -144,6 +145,7 @@
 /* MAIN */
 .main {
   padding: 32px;
+  margin-left:200px;
   overflow-y: auto;
 }
 

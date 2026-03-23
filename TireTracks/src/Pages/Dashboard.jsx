@@ -2,18 +2,36 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import '../Dashboard.css'
 import { getUser } from "../Services/auth";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "../Services/auth";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [recentTires, setRecentTires] = useState([]);
   const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activeNav, setActiveNav] = useState("Dashboard");
+  const navigate = useNavigate();
 
 
   useEffect(() => {
     getUser();
     fetchRecentTires();
   }, []);
+
+  const handleSignOut = async () => {
+  await signOut();      
+  navigate("/SignIn");  
+  };
+
+  async function getUser() {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      navigate("/SignIn");
+      return;
+    }
+    setUser(data.user);
+  }
 
   
   async function fetchRecentTires() {
@@ -83,6 +101,11 @@ export default function Dashboard() {
     fetchRecentTires();
   }
 
+  const handleNavClick = (page) => {
+    setActiveNav(page);       // update active button
+    navigate(page === "Dashboard" ? "/dashboard" : "/inventory");
+  };
+
   return (
     <div className="dashboard">
       <aside className="sidebar">
@@ -90,10 +113,16 @@ export default function Dashboard() {
           <h2 className="logo">TireTracks</h2>
 
           <nav className="sidebar-nav">
-            <button className="nav-btn active" onClick={() => navigate("/dashboard")}>
+            <button
+              className={`nav-btn ${activeNav === "Dashboard" ? "active" : ""}`}
+              onClick={() => handleNavClick("Dashboard")}
+            >
               Dashboard
             </button>
-            <button className="nav-btn" onClick={() => navigate("/inventory")}>
+            <button
+              className={`nav-btn ${activeNav === "Inventory" ? "active" : ""}`}
+              onClick={() => handleNavClick("Inventory")}
+            >
               Inventory
             </button>
           </nav>
@@ -164,35 +193,6 @@ export default function Dashboard() {
                 </table>
               </div>
             )}
-          </div>
-
-          <div className="d-card">
-            <div className="card-header">
-              <h2>Add Tire</h2>
-            </div>
-
-            <form className="tire-form" onSubmit={handleAdd}>
-              <input name="size" placeholder="Size" required />
-              <input name="brand" placeholder="Brand" />
-              <input name="model" placeholder="Model" />
-
-              <select name="condition" required defaultValue="">
-                <option value="" disabled>
-                  Condition
-                </option>
-                <option value="New">New</option>
-                <option value="Used">Used</option>
-              </select>
-
-              <input name="quantity" type="number" defaultValue="1" min="1" />
-              <input name="price" type="number" placeholder="Price" step="0.01" min="0" />
-
-              <button className="save-btn" type="submit">
-                Save
-              </button>
-            </form>
-
-            {addMsg && <p className="form-message">{addMsg}</p>}
           </div>
         </div>
       </main>
