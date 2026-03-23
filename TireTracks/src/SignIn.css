@@ -19,7 +19,7 @@
   text-align: center;
 }
 
-body{
+.body{
     background-image: radial-gradient(#7a0e0a, black);
     display: flex;
     justify-content: center;
