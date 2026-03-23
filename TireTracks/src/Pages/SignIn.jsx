@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { supabase } from "../../supabaseClient"
-import '../SignIn.css'
+import "../SignIn.css"
 
 export default function SignIn() {
   const [email, setEmail] = useState("")
@@ -16,18 +16,18 @@ export default function SignIn() {
     e.preventDefault()
     setMessage("")
 
-    // Validation
     if (!isValidEmail(email)) {
       setIsError(true)
-      return setMessage("Please enter a valid email.")
+      setMessage("Please enter a valid email.")
+      return
     }
 
     if (password.length < 6) {
       setIsError(true)
-      return setMessage("Password must be at least 6 characters.")
+      setMessage("Password must be at least 6 characters.")
+      return
     }
 
-    // Supabase login
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -35,49 +35,48 @@ export default function SignIn() {
 
     if (error) {
       setIsError(true)
-      return setMessage(error.message)
+      setMessage(error.message)
+      return
     }
 
     setIsError(false)
     setMessage("Signed in! Redirecting...")
-
-    // Redirect (React way)
     window.location.href = "/Dashboard"
   }
 
   return (
-       <body className="signIn-Body">
-        <div className="signIn-Card">
-          <h1>Sign In</h1>
+    <div className="signIn-Body">
+      <div className="signIn-Card">
+        <h1>Sign In</h1>
 
-          <form onSubmit={handleSubmit} noValidate>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-            />
+        <form onSubmit={handleSubmit} noValidate>
+          <label>Email</label>
+          <input
+            className="signIn-input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
 
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
+          <label>Password</label>
+          <input
+            className="signIn-input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
 
-            <button className="button-style" type="submit">
-              Sign In
-            </button>
-          </form>
+          <button className="signIn-button" type="submit">
+            Sign In
+          </button>
+        </form>
 
-          <div className={isError ? "error" : "ok"}>
-            {message}
-          </div>
-        </div>
-      </body> 
+        {message && <div className={isError ? "error" : "ok"}>{message}</div>}
+      </div>
+    </div>
   )
 }
