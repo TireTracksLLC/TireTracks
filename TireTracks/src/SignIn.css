@@ -1,0 +1,72 @@
+.signIn-Body {
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  background: radial-gradient(#7a0e0a, black);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+.signIn-Card {
+  background-color: #7a0e0a;
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 400px;
+  text-align: center;
+}
+
+.body{
+    background-image: radial-gradient(#7a0e0a, black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+}
+.signIn-Card h1 {
+  font-size: 28px;
+  font-family: "Times New Roman", Times, serif;
+  margin: 0 0 16px 0;
+}
+
+.signIn-Card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signIn-Card label {
+  color: white;
+}
+
+.signIn-input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background-color: #6f3141;
+  color: white;
+  margin: 0;
+}
+
+.signIn-button {
+  margin-top: 10px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.error {
+  color: #ffd6d6;
+  margin-top: 10px;
+}
+
+.ok {
+  color: #d6ffd6;
+  margin-top: 10px;
+}
