@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { supabase } from "../../supabaseClient"
 import '../SignIn.css'
+import { signIn } from "../Services/auth"
 
 export default function SignIn() {
   const [email, setEmail] = useState("")
@@ -14,39 +15,28 @@ export default function SignIn() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setMessage("")
 
-    // Validation
     if (!isValidEmail(email)) {
       setIsError(true)
       return setMessage("Please enter a valid email.")
     }
 
-    if (password.length < 6) {
-      setIsError(true)
-      return setMessage("Password must be at least 6 characters.")
-    }
-
-    // Supabase login
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const {error} = await signIn(email, password)
 
     if (error) {
       setIsError(true)
       return setMessage(error.message)
-    }
+    } else {
+      setIsError(false)
+      setMessage("Signed in! Redirecting...")
+      window.location.href = "/Dashboard"
+    }    
 
-    setIsError(false)
-    setMessage("Signed in! Redirecting...")
-
-    // Redirect (React way)
-    window.location.href = "/Dashboard"
+    
   }
 
   return (
-       <body className="signIn-Body">
+       <div className="signIn-Body">
         <div className="signIn-Card">
           <h1>Sign In</h1>
 
@@ -78,6 +68,6 @@ export default function SignIn() {
             {message}
           </div>
         </div>
-      </body> 
+      </div> 
   )
 }

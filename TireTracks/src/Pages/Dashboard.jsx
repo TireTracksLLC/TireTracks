@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import { useNavigate } from "react-router-dom";
 import '../Dashboard.css'
+import { getUser } from "../Services/auth";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [recentTires, setRecentTires] = useState([]);
   const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate();
+
 
   // Get user + recent tires
   useEffect(() => {
@@ -16,20 +16,7 @@ export default function Dashboard() {
     fetchRecentTires();
   }, []);
 
-  async function getUser() {
-    const { data } = await supabase.auth.getUser();
-    if(!data.user){
-      navigate('/SignIn');
-      return;
-    }
-    setUser(data.user);
-  }
-
-  async function handleSignOut(){
-    await supabase.auth.signOut()
-    navigate("/SignIn")
-  }
-
+  
   async function fetchRecentTires() {
     const { data, error } = await supabase
       .from("tires")
@@ -159,31 +146,6 @@ export default function Dashboard() {
             </table>
           )}
         </div>
-
-        {/* adding tires to database*/}
-        <div className="d-card">
-          <h2>Add Tire</h2>
-
-          <form onSubmit={handleAdd}>
-            <input name="size" placeholder="Size" required />
-            <input name="brand" placeholder="Brand" />
-            <input name="model" placeholder="Model" />
-
-            <select name="condition" required>
-              <option value="">Condition...</option>
-              <option>New</option>
-              <option>Used</option>
-            </select>
-
-            <input name="quantity" type="number" defaultValue="1" min="1" />
-            <input name="price" type="number" placeholder="Price" />
-
-            <button type="submit">Save</button>
-          </form>
-
-          <p>{addMsg}</p>
-        </div>
-
       </main>
     </div>
   );
