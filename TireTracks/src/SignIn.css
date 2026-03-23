@@ -12,7 +12,7 @@
     font-family: 'Times New Roman', Times, serif, sans-serif;
 }
 
-.signIn-Body{
+.body{
     background-image: radial-gradient(#7a0e0a, black);
     display: flex;
     justify-content: center;

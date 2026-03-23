@@ -46,7 +46,7 @@ export default function SignIn() {
   }
 
   return (
-       <body className="signIn-Body">
+       <div className="signIn-Body">
         <div className="signIn-Card">
           <h1>Sign In</h1>
 
@@ -78,6 +78,6 @@ export default function SignIn() {
             {message}
           </div>
         </div>
-      </body> 
+      </div> 
   )
 }

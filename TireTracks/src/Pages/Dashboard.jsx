@@ -99,7 +99,7 @@ export default function Dashboard() {
 
         <nav>
           <button>Dashboard</button>
-          <button>Inventory</button>
+          <button onClick={() => navigate("/inventory")}>Inventory</button>
         </nav>
 
         <div className="profile">
