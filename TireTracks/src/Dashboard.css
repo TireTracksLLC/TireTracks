@@ -9,11 +9,16 @@
 
 /* SIDEBAR */
 .sidebar {
+  width: 200px;
+  height: 100%;
+  background: #111;
   background: linear-gradient(180deg, #161a20 0%, #1b2027 100%);
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: fixed;
+  left: 0;
   padding: 24px 16px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -43,6 +48,7 @@
   color: #d7dbe0;
   padding: 12px 14px;
   border-radius: 10px;
+  width: 1000px;
   text-align: left;
   font-size: 0.95rem;
   cursor: pointer;

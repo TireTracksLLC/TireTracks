@@ -19,6 +19,13 @@
   text-align: center;
 }
 
+body{
+    background-image: radial-gradient(#7a0e0a, black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+}
 .signIn-Card h1 {
   font-size: 28px;
   font-family: "Times New Roman", Times, serif;

@@ -1,34 +1,21 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import { useNavigate } from "react-router-dom";
-import "../Dashboard.css";
+import '../Dashboard.css'
+import { getUser } from "../Services/auth";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [recentTires, setRecentTires] = useState([]);
   const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate();
+
 
   useEffect(() => {
     getUser();
     fetchRecentTires();
   }, []);
 
-  async function getUser() {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      navigate("/SignIn");
-      return;
-    }
-    setUser(data.user);
-  }
-
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    navigate("/SignIn");
-  }
-
+  
   async function fetchRecentTires() {
     const { data, error } = await supabase
       .from("tires")

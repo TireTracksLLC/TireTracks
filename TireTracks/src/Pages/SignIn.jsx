@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { supabase } from "../../supabaseClient"
-import "../SignIn.css"
+import '../SignIn.css'
+import { signIn } from "../Services/auth"
 
 export default function SignIn() {
   const [email, setEmail] = useState("")
@@ -14,7 +15,6 @@ export default function SignIn() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setMessage("")
 
     if (!isValidEmail(email)) {
       setIsError(true)
@@ -22,32 +22,24 @@ export default function SignIn() {
       return
     }
 
-    if (password.length < 6) {
-      setIsError(true)
-      setMessage("Password must be at least 6 characters.")
-      return
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const {error} = await signIn(email, password)
 
     if (error) {
       setIsError(true)
-      setMessage(error.message)
-      return
-    }
+      return setMessage(error.message)
+    } else {
+      setIsError(false)
+      setMessage("Signed in! Redirecting...")
+      window.location.href = "/Dashboard"
+    }    
 
-    setIsError(false)
-    setMessage("Signed in! Redirecting...")
-    window.location.href = "/Dashboard"
+    
   }
 
   return (
-    <div className="signIn-Body">
-      <div className="signIn-Card">
-        <h1>Sign In</h1>
+       <div className="signIn-Body">
+        <div className="signIn-Card">
+          <h1>Sign In</h1>
 
         <form onSubmit={handleSubmit} noValidate>
           <label>Email</label>
@@ -75,8 +67,10 @@ export default function SignIn() {
           </button>
         </form>
 
-        {message && <div className={isError ? "error" : "ok"}>{message}</div>}
-      </div>
-    </div>
+          <div className={isError ? "error" : "ok"}>
+            {message}
+          </div>
+        </div>
+      </div> 
   )
 }
