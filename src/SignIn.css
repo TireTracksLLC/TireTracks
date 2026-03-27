@@ -2,71 +2,88 @@
   min-height: 100vh;
   width: 100%;
   margin: 0;
-  background: radial-gradient(#7a0e0a, black);
+  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: sans-serif;
-  padding: 20px;
+  background: radial-gradient(circle at center, #7a0e0a 0%, #2b0000 45%, #000 100%);
+  font-family: Arial, sans-serif;
 }
 
 .signIn-Card {
-  background-color: #7a0e0a;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(122, 14, 10, 0.9);
   color: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 400px;
+  padding: 36px 32px;
+  border-radius: 18px;
   text-align: center;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
-.body{
-    background-image: radial-gradient(#7a0e0a, black);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: sans-serif;
-}
 .signIn-Card h1 {
-  font-size: 28px;
+  font-size: 2rem;
   font-family: "Times New Roman", Times, serif;
-  margin: 0 0 16px 0;
+  margin: 0 0 24px 0;
 }
 
 .signIn-Card form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .signIn-Card label {
   color: white;
+  text-align: left;
+  font-size: 1rem;
+  margin-top: 4px;
 }
 
 .signIn-input {
   width: 100%;
-  padding: 10px;
-  border: none;
-  background-color: #6f3141;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
   color: white;
-  margin: 0;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.signIn-input::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.signIn-input:focus {
+  border-color: rgba(255, 255, 255, 0.32);
 }
 
 .signIn-button {
-  margin-top: 10px;
+  margin-top: 14px;
   background-color: black;
   color: white;
   border: none;
   border-radius: 10px;
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.signIn-button:hover {
+  background-color: #111;
 }
 
 .error {
   color: #ffd6d6;
-  margin-top: 10px;
+  margin-top: 14px;
+  font-size: 0.95rem;
 }
 
 .ok {
   color: #d6ffd6;
-  margin-top: 10px;
+  margin-top: 14px;
+  font-size: 0.95rem;
 }

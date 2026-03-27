@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
-import '../Dashboard.css'
-import { getUser } from "../Services/auth";
+import "../Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "../Services/auth";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [recentTires, setRecentTires] = useState([]);
-  const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("Dashboard");
   const navigate = useNavigate();
-
 
   useEffect(() => {
     getUser();
@@ -20,8 +17,8 @@ export default function Dashboard() {
   }, []);
 
   const handleSignOut = async () => {
-  await signOut();      
-  navigate("/SignIn");  
+    await signOut();
+    navigate("/SignIn");
   };
 
   async function getUser() {
@@ -33,7 +30,6 @@ export default function Dashboard() {
     setUser(data.user);
   }
 
-  
   async function fetchRecentTires() {
     const { data, error } = await supabase
       .from("tires")
@@ -41,68 +37,11 @@ export default function Dashboard() {
       .order("created_at", { ascending: false })
       .limit(5);
 
-    if (!error) setRecentTires(data);
-  }
-
-  function normalizeSize(s) {
-    return s.trim().toUpperCase().replace(/\s+/g, "");
-  }
-
-  async function handleAdd(e) {
-    e.preventDefault();
-    setAddMsg("");
-
-    if (!user) {
-      setAddMsg("You must be signed in.");
-      return;
-    }
-
-    const form = e.target;
-
-    const size = normalizeSize(form.size.value);
-    const brand = form.brand.value.trim();
-    const model = form.model.value.trim();
-    const condition = form.condition.value;
-    const quantity = parseInt(form.quantity.value, 10);
-    const priceRaw = form.price.value;
-
-    if (size.length < 5) {
-      setAddMsg("Invalid size");
-      return;
-    }
-
-    if (!condition) {
-      setAddMsg("Pick condition");
-      return;
-    }
-
-    const price = priceRaw === "" ? null : Number(priceRaw);
-
-    const { error } = await supabase.from("tires").insert([
-      {
-        user_id: user.id,
-        size,
-        brand: brand || null,
-        model: model || null,
-        condition,
-        quantity,
-        price,
-      },
-    ]);
-
-    if (error) {
-      setAddMsg(error.message);
-      return;
-    }
-
-    setAddMsg("Saved!");
-    form.reset();
-    form.quantity.value = 1;
-    fetchRecentTires();
+    if (!error) setRecentTires(data || []);
   }
 
   const handleNavClick = (page) => {
-    setActiveNav(page);       // update active button
+    setActiveNav(page);
     navigate(page === "Dashboard" ? "/dashboard" : "/inventory");
   };
 
@@ -158,7 +97,14 @@ export default function Dashboard() {
 
       <main className="main">
         <div className="main-inner">
-          <h1>Dashboard</h1>
+          <div className="page-header">
+            <div>
+              <h1>Dashboard</h1>
+              <p className="page-subtitle">
+                Overview of your most recently added inventory.
+              </p>
+            </div>
+          </div>
 
           <div className="d-card">
             <div className="card-header">
