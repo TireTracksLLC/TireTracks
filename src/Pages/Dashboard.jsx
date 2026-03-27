@@ -42,7 +42,10 @@ export default function Dashboard() {
 
   const handleNavClick = (page) => {
     setActiveNav(page);
-    navigate(page === "Dashboard" ? "/dashboard" : "/inventory");
+
+    if (page === "Dashboard") navigate("/dashboard");
+    if (page === "Inventory") navigate("/inventory");
+    if (page === "Fitment") navigate("/fitment");
   };
 
   return (
@@ -63,6 +66,12 @@ export default function Dashboard() {
               onClick={() => handleNavClick("Inventory")}
             >
               Inventory
+            </button>
+            <button
+              className={`nav-btn ${activeNav === "Fitment" ? "active" : ""}`}
+              onClick={() => handleNavClick("Fitment")}
+            >
+              Fitment Lookup
             </button>
           </nav>
         </div>

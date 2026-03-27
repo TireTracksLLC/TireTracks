@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../SignIn.css";
 import { signIn } from "../Services/auth";
 
 export default function SignIn() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -29,7 +32,9 @@ export default function SignIn() {
     } else {
       setIsError(false);
       setMessage("Signed in! Redirecting...");
-      window.location.href = "/Dashboard";
+      setTimeout(() => {
+        navigate("/Dashboard");
+      }, 800);
     }
   }
 
@@ -65,6 +70,15 @@ export default function SignIn() {
 
           <button className="signIn-button" type="submit">
             Sign In
+          </button>
+
+          {/* ✅ Back to Home Button */}
+          <button
+            type="button"
+            className="back-home-btn"
+            onClick={() => navigate("/")}
+          >
+            ← Back to Home
           </button>
         </form>
 

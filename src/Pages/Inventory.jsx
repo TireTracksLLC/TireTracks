@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "../Services/auth";
+import { lookupFitment } from "../Services/fitment";
 import "../Dashboard.css";
 
 export default function Inventory() {
@@ -12,6 +13,17 @@ export default function Inventory() {
   const [showAdd, setShowAdd] = useState(false);
   const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const [fitmentForm, setFitmentForm] = useState({
+    make: "",
+    model: "",
+    year: "",
+    region: "usdm",
+  });
+  const [fitmentLoading, setFitmentLoading] = useState(false);
+  const [fitmentMessage, setFitmentMessage] = useState("");
+  const [fitmentResults, setFitmentResults] = useState([]);
+  const [selectedFitment, setSelectedFitment] = useState(null);
 
   const navigate = useNavigate();
 
@@ -98,8 +110,63 @@ export default function Inventory() {
     setAddMsg("Saved!");
     form.reset();
     form.quantity.value = 1;
+
+    setFitmentForm({
+      make: "",
+      model: "",
+      year: "",
+      region: "usdm",
+    });
+    setFitmentResults([]);
+    setSelectedFitment(null);
+    setFitmentMessage("");
+
     fetchTires();
     setShowAdd(false);
+  }
+
+  async function handleFitmentLookup() {
+    setFitmentLoading(true);
+    setFitmentMessage("");
+    setFitmentResults([]);
+    setSelectedFitment(null);
+
+    try {
+      const data = await lookupFitment(fitmentForm);
+      const results = data.data || [];
+
+      setFitmentResults(results);
+
+      if (results.length === 0) {
+        setFitmentMessage("No fitment results found.");
+      }
+    } catch (err) {
+      setFitmentMessage(err.message || "Fitment lookup failed");
+    } finally {
+      setFitmentLoading(false);
+    }
+  }
+
+  function applyFitmentToForm(item) {
+    setSelectedFitment(item);
+
+    const stockWheel =
+      item.wheels?.find((w) => w.is_stock && w.front?.tire) ||
+      item.wheels?.find((w) => w.front?.tire);
+
+    if (!stockWheel?.front?.tire) {
+      setFitmentMessage("No tire size available on that trim.");
+      return;
+    }
+
+    const sizeInput = document.querySelector('input[name="size"]');
+    if (sizeInput) {
+      sizeInput.value = stockWheel.front.tire;
+    }
+
+    setFitmentMessage(
+      `Applied ${stockWheel.front.tire} from ${item.trim || item.name}.`
+    );
   }
 
   const filteredTires = tires.filter((t) =>
@@ -113,17 +180,14 @@ export default function Inventory() {
           <h2 className="logo">TireTracks</h2>
 
           <nav className="sidebar-nav">
-            <button
-              className="nav-btn"
-              onClick={() => navigate("/dashboard")}
-            >
+            <button className="nav-btn" onClick={() => navigate("/dashboard")}>
               Dashboard
             </button>
-            <button
-              className="nav-btn active"
-              onClick={() => navigate("/inventory")}
-            >
+            <button className="nav-btn active" onClick={() => navigate("/inventory")}>
               Inventory
+            </button>
+            <button className="nav-btn" onClick={() => navigate("/fitment")}>
+              Fitment Lookup
             </button>
           </nav>
         </div>
@@ -240,6 +304,117 @@ export default function Inventory() {
                 </button>
 
                 <h2>Add Tire</h2>
+
+                <div className="inventory-fitment-box">
+                  <h3>Optional Vehicle Fitment Lookup</h3>
+
+                  <div className="inventory-fitment-form">
+                    <input
+                      placeholder="Make"
+                      value={fitmentForm.make}
+                      onChange={(e) =>
+                        setFitmentForm((prev) => ({
+                          ...prev,
+                          make: e.target.value,
+                        }))
+                      }
+                    />
+
+                    <input
+                      placeholder="Model"
+                      value={fitmentForm.model}
+                      onChange={(e) =>
+                        setFitmentForm((prev) => ({
+                          ...prev,
+                          model: e.target.value,
+                        }))
+                      }
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="Year"
+                      value={fitmentForm.year}
+                      onChange={(e) =>
+                        setFitmentForm((prev) => ({
+                          ...prev,
+                          year: e.target.value,
+                        }))
+                      }
+                    />
+
+                    <select
+                      value={fitmentForm.region}
+                      onChange={(e) =>
+                        setFitmentForm((prev) => ({
+                          ...prev,
+                          region: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="usdm">USDM</option>
+                      <option value="cdm">CDM</option>
+                      <option value="mxndm">MXNDM</option>
+                      <option value="ladm">LADM</option>
+                      <option value="eudm">EUDM</option>
+                      <option value="jdm">JDM</option>
+                      <option value="chdm">CHDM</option>
+                      <option value="medm">MEDM</option>
+                    </select>
+
+                    <button
+                      type="button"
+                      className="primary-btn"
+                      onClick={handleFitmentLookup}
+                      disabled={fitmentLoading}
+                    >
+                      {fitmentLoading ? "Searching..." : "Get Fitment"}
+                    </button>
+                  </div>
+
+                  {fitmentMessage && (
+                    <p className="form-message">{fitmentMessage}</p>
+                  )}
+
+                  {fitmentResults.length > 0 && (
+                    <div className="trim-grid inventory-trim-grid">
+                      {fitmentResults.map((item) => (
+                        <button
+                          key={item.slug}
+                          type="button"
+                          className={`trim-card ${
+                            selectedFitment?.slug === item.slug ? "selected" : ""
+                          }`}
+                          onClick={() => applyFitmentToForm(item)}
+                        >
+                          <h3>{item.trim || item.name}</h3>
+                          <p>
+                            {item.make?.name} {item.model?.name}
+                          </p>
+                          <p>
+                            {item.start_year} - {item.end_year}
+                          </p>
+                          <p>
+                            {item.engine?.capacity}L {item.engine?.fuel}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedFitment && (
+                    <div className="fitment-preview">
+                      <p>
+                        <strong>Bolt Pattern:</strong>{" "}
+                        {selectedFitment.technical?.bolt_pattern || "-"}
+                      </p>
+                      <p>
+                        <strong>Center Bore:</strong>{" "}
+                        {selectedFitment.technical?.centre_bore || "-"}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 <form className="drawer-form" onSubmit={handleAdd}>
                   <input name="size" placeholder="Size" required />
