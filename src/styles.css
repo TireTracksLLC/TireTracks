@@ -6,10 +6,15 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 🔥 FIXED BACKGROUND */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #636a70;
+  background-color: #000; /* was gray → now black */
+}
+
+#root {
+  min-height: 100vh;
 }
 
 /* NAVBAR */

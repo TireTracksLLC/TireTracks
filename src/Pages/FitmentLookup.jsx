@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
+import { signOut } from "../Services/auth";
 import "../Dashboard.css";
 import { lookupFitment } from "../Services/fitment";
 
 export default function FitmentLookup() {
   const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [form, setForm] = useState({
     make: "",
@@ -18,6 +23,24 @@ export default function FitmentLookup() {
   const [selectedTrim, setSelectedTrim] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  async function getUser() {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      navigate("/signin");
+      return;
+    }
+    setUser(data.user);
+  }
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/signin");
+  };
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -85,6 +108,33 @@ export default function FitmentLookup() {
               Fitment Lookup
             </button>
           </nav>
+        </div>
+
+        <div className="profile">
+          {user ? (
+            <div className="dropdown">
+              <button
+                className="dropdown-button"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                type="button"
+              >
+                {user.email}
+              </button>
+
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <button type="button" onClick={() => alert("Settings clicked")}>
+                    Settings
+                  </button>
+                  <button type="button" onClick={handleSignOut}>
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p>Not signed in</p>
+          )}
         </div>
       </aside>
 
