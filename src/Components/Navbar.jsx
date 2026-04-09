@@ -1,5 +1,5 @@
-import { Link as ScrollLink } from "react-scroll"
-import { Link as RouterLink } from "react-router-dom"
+import { Link as ScrollLink } from "react-scroll";
+import { Link as RouterLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
@@ -30,5 +30,5 @@ export default function Navbar() {
         <button className="sign-in">Sign In</button>
       </RouterLink>
     </nav>
-  )
+  );
 }

@@ -33,7 +33,7 @@ export default function SignIn() {
       setIsError(false);
       setMessage("Signed in! Redirecting...");
       setTimeout(() => {
-        navigate("/Dashboard");
+        navigate("/dashboard");
       }, 800);
     }
   }
@@ -72,7 +72,6 @@ export default function SignIn() {
             Sign In
           </button>
 
-          {/* ✅ Back to Home Button */}
           <button
             type="button"
             className="back-home-btn"
@@ -82,11 +81,7 @@ export default function SignIn() {
           </button>
         </form>
 
-        {message && (
-          <div className={isError ? "error" : "ok"}>
-            {message}
-          </div>
-        )}
+        {message && <div className={isError ? "error" : "ok"}>{message}</div>}
       </div>
     </div>
   );

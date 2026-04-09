@@ -31,44 +31,111 @@ export default function Inventory() {
     return (s || "").trim().toUpperCase().replace(/\s+/g, "");
   }
 
+  function normalizeText(s) {
+    const value = (s || "").trim().toLowerCase();
+    return value === "" ? null : value;
+  }
+
+  function normalizeCondition(s) {
+    return (s || "").trim().toLowerCase();
+  }
+
+  function formatText(s) {
+    if (!s) return "-";
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
   useEffect(() => {
-    getUser();
-    fetchTires();
+    initializePage();
   }, []);
+
+  async function initializePage() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data.user) {
+      navigate("/SignIn");
+      return;
+    }
+
+    setUser(data.user);
+    await fetchTires(data.user.id);
+  }
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/SignIn");
   };
 
-  async function getUser() {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      navigate("/SignIn");
+  async function fetchTires(userId) {
+    const currentUserId = userId || user?.id;
+
+    if (!currentUserId) {
+      setTires([]);
       return;
     }
-    setUser(data.user);
-  }
 
-  async function fetchTires() {
     const { data, error } = await supabase
       .from("tires")
       .select("*")
+      .eq("user_id", currentUserId)
       .order("created_at", { ascending: false });
-
-    if (!error) setTires(data || []);
-  }
-
-  async function handleDelete(id) {
-    const { error } = await supabase.from("tires").delete().eq("id", id);
 
     if (error) {
       setMessage(error.message);
       return;
     }
 
-    setMessage("Deleted!");
-    fetchTires();
+    setTires(data || []);
+  }
+
+  async function handleDelete(id) {
+    setMessage("");
+
+    const { data: tire, error: fetchError } = await supabase
+      .from("tires")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchError) {
+      setMessage(fetchError.message);
+      return;
+    }
+
+    if (!tire) {
+      setMessage("Tire not found.");
+      return;
+    }
+
+    const newQuantity = (tire.quantity || 0) - 1;
+
+    if (newQuantity > 0) {
+      const { error: updateError } = await supabase
+        .from("tires")
+        .update({ quantity: newQuantity })
+        .eq("id", id);
+
+      if (updateError) {
+        setMessage(updateError.message);
+        return;
+      }
+
+      setMessage("Quantity decreased by 1.");
+    } else {
+      const { error: deleteError } = await supabase
+        .from("tires")
+        .delete()
+        .eq("id", id);
+
+      if (deleteError) {
+        setMessage(deleteError.message);
+        return;
+      }
+
+      setMessage("Tire removed completely.");
+    }
+
+    await fetchTires();
   }
 
   async function handleAdd(e) {
@@ -83,31 +150,139 @@ export default function Inventory() {
     const form = e.target;
 
     const size = normalizeSize(form.size.value);
-    const brand = form.brand.value.trim();
-    const model = form.model.value.trim();
-    const condition = form.condition.value;
-    const quantity = parseInt(form.quantity.value, 10);
+    const brand = normalizeText(form.brand.value);
+    const model = normalizeText(form.model.value);
+    const condition = normalizeCondition(form.condition.value);
+    const quantityToAdd = parseInt(form.quantity.value, 10);
     const priceRaw = form.price.value;
     const price = priceRaw === "" ? null : Number(priceRaw);
 
-    const { error } = await supabase.from("tires").insert([
-      {
-        user_id: user.id,
-        size,
-        brand: brand || null,
-        model: model || null,
-        condition,
-        quantity,
-        price,
-      },
-    ]);
-
-    if (error) {
-      setAddMsg(error.message);
+    if (size.length < 2) {
+      setAddMsg("Enter a valid tire size.");
       return;
     }
 
-    setAddMsg("Saved!");
+    if (!condition || !["new", "used"].includes(condition)) {
+      setAddMsg("Pick a valid condition.");
+      return;
+    }
+
+    if (!Number.isInteger(quantityToAdd) || quantityToAdd < 1) {
+      setAddMsg("Quantity must be 1 or more.");
+      return;
+    }
+
+    if (price !== null && (Number.isNaN(price) || price < 0)) {
+      setAddMsg("Price must be valid.");
+      return;
+    }
+
+    let query = supabase
+      .from("tires")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("size", size)
+      .eq("condition", condition);
+
+    if (brand === null) {
+      query = query.is("brand", null);
+    } else {
+      query = query.eq("brand", brand);
+    }
+
+    if (model === null) {
+      query = query.is("model", null);
+    } else {
+      query = query.eq("model", model);
+    }
+
+    if (price === null) {
+      query = query.is("price", null);
+    } else {
+      query = query.eq("price", price);
+    }
+
+    const { data: existingRows, error: findError } = await query;
+
+    if (findError) {
+      setAddMsg(findError.message);
+      return;
+    }
+
+    let existing = null;
+
+    if (existingRows && existingRows.length > 0) {
+      existing = existingRows[0];
+
+      if (existingRows.length > 1) {
+        const totalQty = existingRows.reduce(
+          (sum, t) => sum + (t.quantity || 0),
+          0
+        );
+
+        const { error: mergeError } = await supabase
+          .from("tires")
+          .update({ quantity: totalQty })
+          .eq("id", existing.id);
+
+        if (mergeError) {
+          setAddMsg(mergeError.message);
+          return;
+        }
+
+        const extraIds = existingRows.slice(1).map((t) => t.id);
+
+        if (extraIds.length > 0) {
+          const { error: deleteExtraError } = await supabase
+            .from("tires")
+            .delete()
+            .in("id", extraIds);
+
+          if (deleteExtraError) {
+            setAddMsg(deleteExtraError.message);
+            return;
+          }
+        }
+
+        existing.quantity = totalQty;
+      }
+    }
+
+    if (existing) {
+      const newQuantity = (existing.quantity || 0) + quantityToAdd;
+
+      const { error: updateError } = await supabase
+        .from("tires")
+        .update({ quantity: newQuantity })
+        .eq("id", existing.id);
+
+      if (updateError) {
+        setAddMsg(updateError.message);
+        return;
+      }
+
+      setAddMsg(`Updated quantity. New quantity: ${newQuantity}`);
+    } else {
+      const { error: insertError } = await supabase.from("tires").insert([
+        {
+          user_id: user.id,
+          size,
+          brand,
+          model,
+          condition,
+          quantity: quantityToAdd,
+          price,
+        },
+      ]);
+
+      if (insertError) {
+        setAddMsg(insertError.message);
+        return;
+      }
+
+      setAddMsg("Saved!");
+    }
+
     form.reset();
     form.quantity.value = 1;
 
@@ -121,7 +296,7 @@ export default function Inventory() {
     setSelectedFitment(null);
     setFitmentMessage("");
 
-    fetchTires();
+    await fetchTires();
     setShowAdd(false);
   }
 
@@ -183,7 +358,10 @@ export default function Inventory() {
             <button className="nav-btn" onClick={() => navigate("/dashboard")}>
               Dashboard
             </button>
-            <button className="nav-btn active" onClick={() => navigate("/inventory")}>
+            <button
+              className="nav-btn active"
+              onClick={() => navigate("/inventory")}
+            >
               Inventory
             </button>
             <button className="nav-btn" onClick={() => navigate("/fitment")}>
@@ -269,9 +447,9 @@ export default function Inventory() {
                     {filteredTires.map((t) => (
                       <tr key={t.id}>
                         <td>{t.size}</td>
-                        <td>{t.brand || "-"}</td>
-                        <td>{t.model || "-"}</td>
-                        <td>{t.condition}</td>
+                        <td>{formatText(t.brand)}</td>
+                        <td>{formatText(t.model)}</td>
+                        <td>{formatText(t.condition)}</td>
                         <td>{t.quantity}</td>
                         <td>{t.price != null ? `$${t.price}` : "-"}</td>
                         <td>
@@ -279,7 +457,7 @@ export default function Inventory() {
                             className="danger-btn"
                             onClick={() => handleDelete(t.id)}
                           >
-                            Delete
+                            Remove 1
                           </button>
                         </td>
                       </tr>
@@ -423,12 +601,18 @@ export default function Inventory() {
 
                   <select name="condition" required>
                     <option value="">Condition...</option>
-                    <option>New</option>
-                    <option>Used</option>
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
                   </select>
 
                   <input name="quantity" type="number" defaultValue="1" min="1" />
-                  <input name="price" type="number" placeholder="Price" />
+                  <input
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Price"
+                  />
 
                   <button className="save-btn" type="submit">
                     Save

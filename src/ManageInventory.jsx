@@ -12,10 +12,16 @@ export default function ManageInventory() {
   });
 
   const [deleteId, setDeleteId] = useState('');
+  const [deleteQty, setDeleteQty] = useState(1);
   const [message, setMessage] = useState('');
 
   function normalizeSize(s) {
     return s.trim().toUpperCase().replace(/\s+/g, '');
+  }
+
+  function normalizeText(value) {
+    const trimmed = value.trim();
+    return trimmed === '' ? null : trimmed;
   }
 
   function handleChange(e) {
@@ -30,13 +36,18 @@ export default function ManageInventory() {
     e.preventDefault();
     setMessage('');
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
     if (!user) {
       setMessage('You must be signed in to add inventory.');
       return;
     }
 
     const size = normalizeSize(form.size);
+    const brand = normalizeText(form.brand);
+    const model = normalizeText(form.model);
 
     if (size.length < 5) {
       setMessage('Enter a valid tire size.');
@@ -48,8 +59,8 @@ export default function ManageInventory() {
       return;
     }
 
-    const quantity = parseInt(form.quantity, 10);
-    if (!Number.isInteger(quantity) || quantity < 1) {
+    const quantityToAdd = parseInt(form.quantity, 10);
+    if (!Number.isInteger(quantityToAdd) || quantityToAdd < 1) {
       setMessage('Quantity must be 1 or more.');
       return;
     }
@@ -60,24 +71,73 @@ export default function ManageInventory() {
       return;
     }
 
-    const { error } = await supabase.from('tires').insert([
-      {
-        user_id: user.id,
-        size,
-        brand: form.brand || null,
-        model: form.model || null,
-        condition: form.condition,
-        quantity,
-        price
-      }
-    ]);
+    let query = supabase
+      .from('tires')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('size', size)
+      .eq('condition', form.condition);
 
-    if (error) {
-      setMessage(error.message);
+    if (brand === null) {
+      query = query.is('brand', null);
+    } else {
+      query = query.eq('brand', brand);
+    }
+
+    if (model === null) {
+      query = query.is('model', null);
+    } else {
+      query = query.eq('model', model);
+    }
+
+    if (price === null) {
+      query = query.is('price', null);
+    } else {
+      query = query.eq('price', price);
+    }
+
+    const { data: existing, error: findError } = await query.maybeSingle();
+
+    if (findError) {
+      setMessage(findError.message);
       return;
     }
 
-    setMessage('Saved to inventory!');
+    if (existing) {
+      const newQuantity = (existing.quantity || 0) + quantityToAdd;
+
+      const { error: updateError } = await supabase
+        .from('tires')
+        .update({ quantity: newQuantity })
+        .eq('id', existing.id);
+
+      if (updateError) {
+        setMessage(updateError.message);
+        return;
+      }
+
+      setMessage(`Updated quantity. New quantity: ${newQuantity}`);
+    } else {
+      const { error: insertError } = await supabase.from('tires').insert([
+        {
+          user_id: user.id,
+          size,
+          brand,
+          model,
+          condition: form.condition,
+          quantity: quantityToAdd,
+          price
+        }
+      ]);
+
+      if (insertError) {
+        setMessage(insertError.message);
+        return;
+      }
+
+      setMessage('Saved to inventory!');
+    }
+
     setForm({
       size: '',
       brand: '',
@@ -97,18 +157,58 @@ export default function ManageInventory() {
       return;
     }
 
-    const { error } = await supabase
-      .from('tires')
-      .delete()
-      .eq('id', deleteId);
-
-    if (error) {
-      setMessage(error.message);
+    const qtyToRemove = parseInt(deleteQty, 10);
+    if (!Number.isInteger(qtyToRemove) || qtyToRemove < 1) {
+      setMessage('Delete quantity must be 1 or more.');
       return;
     }
 
-    setMessage('Tire deleted successfully.');
+    const { data: tire, error: fetchError } = await supabase
+      .from('tires')
+      .select('*')
+      .eq('id', deleteId)
+      .maybeSingle();
+
+    if (fetchError) {
+      setMessage(fetchError.message);
+      return;
+    }
+
+    if (!tire) {
+      setMessage('Tire not found.');
+      return;
+    }
+
+    const newQuantity = (tire.quantity || 0) - qtyToRemove;
+
+    if (newQuantity > 0) {
+      const { error: updateError } = await supabase
+        .from('tires')
+        .update({ quantity: newQuantity })
+        .eq('id', deleteId);
+
+      if (updateError) {
+        setMessage(updateError.message);
+        return;
+      }
+
+      setMessage(`Quantity updated. Remaining: ${newQuantity}`);
+    } else {
+      const { error: deleteError } = await supabase
+        .from('tires')
+        .delete()
+        .eq('id', deleteId);
+
+      if (deleteError) {
+        setMessage(deleteError.message);
+        return;
+      }
+
+      setMessage('Tire removed completely.');
+    }
+
     setDeleteId('');
+    setDeleteQty(1);
   }
 
   return (
@@ -175,11 +275,21 @@ export default function ManageInventory() {
 
       <form onSubmit={handleDeleteTire} className="inventory-card">
         <h2>Delete Tire</h2>
+
         <input
           placeholder="Enter tire ID"
           value={deleteId}
           onChange={(e) => setDeleteId(e.target.value)}
         />
+
+        <input
+          type="number"
+          min="1"
+          placeholder="Quantity to remove"
+          value={deleteQty}
+          onChange={(e) => setDeleteQty(e.target.value)}
+        />
+
         <button type="submit">Delete Tire</button>
       </form>
 

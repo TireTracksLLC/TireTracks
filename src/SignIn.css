@@ -6,25 +6,26 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(circle at center, #7a0e0a 0%, #2b0000 45%, #000 100%);
+  background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 55%, #fee2e2 100%);
   font-family: Arial, sans-serif;
 }
 
 .signIn-Card {
   width: 100%;
   max-width: 420px;
-  background: rgba(122, 14, 10, 0.9);
-  color: white;
+  background: rgba(255, 255, 255, 0.97);
+  color: #111827;
   padding: 36px 32px;
-  border-radius: 18px;
+  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(185, 28, 28, 0.12);
 }
 
 .signIn-Card h1 {
   font-size: 2rem;
-  font-family: "Times New Roman", Times, serif;
   margin: 0 0 24px 0;
+  color: #b91c1c;
 }
 
 .signIn-Card form {
@@ -34,74 +35,79 @@
 }
 
 .signIn-Card label {
-  color: white;
+  color: #334155;
   text-align: left;
   font-size: 1rem;
   margin-top: 4px;
+  font-weight: 600;
 }
 
 .signIn-input {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid #d1d5db;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.28);
-  color: white;
+  background: #f8fafc;
+  color: #111827;
   outline: none;
   font-size: 0.95rem;
 }
 
 .signIn-input::placeholder {
-  color: rgba(255, 255, 255, 0.65);
+  color: #94a3b8;
 }
 
 .signIn-input:focus {
-  border-color: rgba(255, 255, 255, 0.32);
+  border-color: #b91c1c;
 }
 
 .signIn-button {
   margin-top: 14px;
-  background-color: black;
+  background-color: #b91c1c;
   color: white;
   border: none;
   border-radius: 10px;
   padding: 12px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
+  font-weight: 700;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .signIn-button:hover {
-  background-color: #111;
+  background-color: #991b1b;
+  transform: translateY(-1px);
 }
 
 .error {
-  color: #ffd6d6;
+  color: #b91c1c;
   margin-top: 14px;
   font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .ok {
-  color: #d6ffd6;
+  color: #15803d;
   margin-top: 14px;
   font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .back-home-btn {
   margin-top: 10px;
   width: 100%;
   background: transparent;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #b91c1c;
+  border: 1px solid #fecaca;
   border-radius: 10px;
   padding: 10px;
   cursor: pointer;
   font-size: 0.95rem;
+  font-weight: 700;
   transition: all 0.2s ease;
 }
 
 .back-home-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #fff1f2;
+  border-color: #fca5a5;
 }

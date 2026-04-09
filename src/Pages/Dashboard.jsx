@@ -33,12 +33,10 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getUser();
-    fetchRecentTires();
-    fetchAllTires();
+    initializePage();
   }, []);
 
-  async function getUser() {
+  async function initializePage() {
     const { data } = await supabase.auth.getUser();
 
     if (!data.user) {
@@ -47,12 +45,15 @@ export default function Dashboard() {
     }
 
     setUser(data.user);
+    await fetchRecentTires(data.user.id);
+    await fetchAllTires(data.user.id);
   }
 
-  async function fetchRecentTires() {
+  async function fetchRecentTires(userId) {
     const { data, error } = await supabase
       .from("tires")
       .select("*")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(5);
 
@@ -64,10 +65,11 @@ export default function Dashboard() {
     setRecentTires(data || []);
   }
 
-  async function fetchAllTires() {
+  async function fetchAllTires(userId) {
     const { data, error } = await supabase
       .from("tires")
-      .select("*");
+      .select("*")
+      .eq("user_id", userId);
 
     if (error) {
       console.error("Error fetching all tires:", error);
@@ -106,22 +108,24 @@ export default function Dashboard() {
     modelCounts[model] = (modelCounts[model] || 0) + qty;
   });
 
+  const chartPalette = [
+    "#b91c1c",
+    "#dc2626",
+    "#ef4444",
+    "#f87171",
+    "#fca5a5",
+    "#7f1d1d",
+  ];
+
   const sizeChartData = {
     labels: Object.keys(sizeCounts),
     datasets: [
       {
         label: "Tires by Size",
         data: Object.values(sizeCounts),
-        backgroundColor: [
-          "#a30000",
-          "#c51515",
-          "#df4a38",
-          "#f28c7f",
-          "#8b0000",
-          "#5c0000",
-        ],
+        backgroundColor: chartPalette,
         borderColor: "#ffffff",
-        borderWidth: 1,
+        borderWidth: 2,
       },
     ],
   };
@@ -132,15 +136,8 @@ export default function Dashboard() {
       {
         label: "Tires by Model",
         data: Object.values(modelCounts),
-        backgroundColor: [
-          "#a30000",
-          "#b80f0f",
-          "#c51515",
-          "#8b0000",
-          "#df4a38",
-          "#5c0000",
-        ],
-        borderWidth: 0,
+        backgroundColor: "#b91c1c",
+        borderRadius: 8,
       },
     ],
   };
@@ -206,10 +203,12 @@ export default function Dashboard() {
       <main className="main">
         <div className="main-inner">
           <div className="page-header">
-            <h1>Dashboard</h1>
-            <p className="page-subtitle">
-              Overview of your most recently added inventory.
-            </p>
+            <div>
+              <h1>Dashboard</h1>
+              <p className="page-subtitle">
+                Overview of your most recently added inventory.
+              </p>
+            </div>
           </div>
 
           <div className="d-card">
@@ -258,7 +257,18 @@ export default function Dashboard() {
               <div className="chart-grid">
                 <div className="chart-box">
                   <h3>Size Distribution</h3>
-                  <Pie data={sizeChartData} />
+                  <Pie
+                    data={sizeChartData}
+                    options={{
+                      plugins: {
+                        legend: {
+                          labels: {
+                            color: "#111827",
+                          },
+                        },
+                      },
+                    }}
+                  />
                 </div>
 
                 <div className="chart-box">
@@ -270,26 +280,26 @@ export default function Dashboard() {
                       plugins: {
                         legend: {
                           labels: {
-                            color: "#ffffff",
+                            color: "#111827",
                           },
                         },
                       },
                       scales: {
                         x: {
                           ticks: {
-                            color: "#ffffff",
+                            color: "#111827",
                           },
                           grid: {
-                            color: "rgba(255,255,255,0.08)",
+                            color: "rgba(17, 24, 39, 0.08)",
                           },
                         },
                         y: {
                           beginAtZero: true,
                           ticks: {
-                            color: "#ffffff",
+                            color: "#111827",
                           },
                           grid: {
-                            color: "rgba(255,255,255,0.08)",
+                            color: "rgba(17, 24, 39, 0.08)",
                           },
                         },
                       },
