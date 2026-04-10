@@ -114,7 +114,7 @@
 }
 
 .main {
-  padding: 30px 0;
+  padding: 30px 20px;
 }
 
 .main-inner {
@@ -136,7 +136,7 @@
 
 .page-header h1 {
   margin: 0;
-  font-size: 2.4rem;
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
   color: #b91c1c;
   text-align: center;
 }
@@ -158,11 +158,6 @@
   transform: translateY(-50%);
 }
 
-.page-subtitle {
-  margin-top: 8px;
-  color: #475569;
-}
-
 .d-card {
   width: 100%;
   max-width: 1000px;
@@ -180,8 +175,12 @@
 
 .card-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
   color: #111827;
+}
+
+table {
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
 }
 
 .empty-text {
@@ -211,11 +210,13 @@
 }
 
 .table-wrap {
+  width: 100%;
   overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
   color: #111827;
 }
@@ -481,6 +482,40 @@ th {
   .sidebar {
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 18px 16px;
+  }
+
+  .sidebar-top {
+    gap: 16px;
+  }
+
+  .logo {
+    font-size: 1.6rem;
+  }
+
+  .main {
+    padding: 20px 16px 30px;
+  }
+
+  .main-inner {
+    max-width: 100%;
+    align-items: stretch;
+  }
+
+  .page-header {
+    text-align: center;
+    min-height: unset;
+    margin-bottom: 18px;
+  }
+
+  .page-header h1 {
+    font-size: clamp(2.2rem, 3vw, 3rem);
+  }
+
+  .page-header .primary-btn {
+    position: static;
+    transform: none;
+    margin-top: 14px;
   }
 
   .fitment-form,
@@ -489,12 +524,64 @@ th {
     grid-template-columns: 1fr;
   }
 
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .add-panel {
     width: 100%;
+  }
+
+  .d-card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 16px 12px 24px;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+  }
+
+  .nav-btn,
+  .dropdown-button,
+  .primary-btn,
+  .save-btn {
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
+    padding: 10px 12px;
+  }
+
+  .page-header h1 {
+    font-size: 1.7rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  th,
+  td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+
+  .search-input,
+  .drawer-form input,
+  .drawer-form select,
+  .fitment-form input,
+  .fitment-form select,
+  .inventory-fitment-form input,
+  .inventory-fitment-form select {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .add-panel-content {
+    padding: 20px 14px 24px;
+  }
+
+  .trim-grid,
+  .fitment-details-grid {
+    grid-template-columns: 1fr;
   }
 }
