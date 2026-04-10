@@ -1,5 +1,5 @@
 import { use, useEffect, useState } from "react";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "../Services/auth";
 import { lookupFitment } from "../Services/fitment";
