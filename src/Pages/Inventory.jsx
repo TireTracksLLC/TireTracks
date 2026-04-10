@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "../Services/auth";
@@ -25,7 +25,61 @@ export default function Inventory() {
   const [fitmentResults, setFitmentResults] = useState([]);
   const [selectedFitment, setSelectedFitment] = useState(null);
 
+  const [tireBrands, setTireBrands] = useState([]);
+  const [tireTypes, setTireTypes] = useState([]);
+  const [tireSizes, setTireSizes] = useState([]);
+
+  const [tireBrandInput, setTireBrandInput] = useState("");
+  const [tireTypeInput, setTireTypeInput] = useState("");
+  const [tireSizeInput, setTireSizeInput] = useState("");
+
+  const [selectedTireBrand, setSelectedTireBrand] = useState(null);
+  const [selectedTireType, setSelectedTireType] = useState(null);
+  const [selectedTireSize, setSelectedTireSize] = useState(null);
+
   const navigate = useNavigate();
+
+  async function getBrands() {
+    const { data, error } = await supabase
+      .from("Tire Options")
+      .select("tire_brand");
+
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      
+    const unique = [...new Set(data.map(d => d.tire_brand).filter(Boolean))]; 
+    setTireBrands(unique);
+  }
+
+  async function getTypes() {
+    const { data, error } = await supabase
+      .from("Tire Options")
+      .select("type");
+
+      if (error) {
+        console.error(error);
+        return [];
+      }
+
+    const unique = [...new Set(data.map(d => d.type).filter(Boolean))]; 
+    setTireTypes(unique);
+  }
+
+  async function getSizes() {
+    const { data, error } = await supabase
+      .from("Tire Options")
+      .select("size");
+
+      if (error) {
+        console.error(error);
+        return [];
+      }
+
+    const unique = [...new Set(data.map(d => d.size).filter(Boolean))]; 
+    setTireSizes(unique);
+  }
 
   function normalizeSize(s) {
     return (s || "").trim().toUpperCase().replace(/\s+/g, "");
@@ -149,9 +203,9 @@ export default function Inventory() {
 
     const form = e.target;
 
-    const size = normalizeSize(form.size.value);
-    const brand = normalizeText(form.brand.value);
-    const model = normalizeText(form.model.value);
+    const size = normalizeSize(selectedTireSize);
+    const brand = normalizeText(selectedTireBrand);
+    const model = normalizeText(selectedTireType);
     const condition = normalizeCondition(form.condition.value);
     const quantityToAdd = parseInt(form.quantity.value, 10);
     const priceRaw = form.price.value;
@@ -408,7 +462,7 @@ export default function Inventory() {
               </p>
             </div>
 
-            <button className="primary-btn" onClick={() => setShowAdd(true)}>
+            <button className="primary-btn" onClick={() => {setShowAdd(true); getBrands(); getTypes(); getSizes();}}>
               + Add Tire
             </button>
           </div>
@@ -596,7 +650,32 @@ export default function Inventory() {
 
                 <form className="drawer-form" onSubmit={handleAdd}>
                   <input name="size" placeholder="Size" required />
-                  <input name="brand" placeholder="Brand" />
+                  <input placeholder="Brand" value={tireBrandInput} onChange={(e) => setTireBrandInput(e.target.value)}  />
+                  {tireBrandInput && (
+                    <ul className="autocomplete-list">
+                      {tireBrands
+                        .filter(opt =>
+                          opt.toLowerCase().includes(tireBrandInput.toLowerCase())
+                        )
+                        .map(opt => (
+                          <li
+                            key={opt}
+                            onClick={() => {
+                              setSelectedTireBrand(opt);
+                              setTireBrandInput(opt);
+                            }}
+                          >
+                            {opt}
+                          </li>
+                        ))}
+
+                      {tireBrands.filter(opt =>
+                        opt.toLowerCase().includes(tireBrandInput.toLowerCase())
+                      ).length === 0 && (
+                        <li className="no-results">No results</li>
+                      )}
+                    </ul>
+                  )}
                   <input name="model" placeholder="Model" />
 
                   <select name="condition" required>
