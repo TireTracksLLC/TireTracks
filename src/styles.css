@@ -25,6 +25,7 @@ body {
   font-family: Arial, sans-serif;
   background-color: var(--off-white);
   color: var(--dark);
+  font-size: 17px;
 }
 
 #root {
@@ -33,7 +34,7 @@ body {
 
 /* NAVBAR */
 .site-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 2vw, 2.2rem);
   font-weight: bold;
   color: var(--white);
   text-decoration: none;
@@ -44,7 +45,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
+  min-height: 70px;
   background: linear-gradient(to right, var(--primary-red-dark), var(--primary-red));
   color: var(--white);
   display: flex;
@@ -61,7 +62,7 @@ body {
   list-style: none;
   display: flex;
   gap: 2rem;
-  font-size: 22px;
+  font-size: clamp(1rem, 1.3vw, 1.3rem);
   align-items: center;
 }
 
@@ -132,11 +133,11 @@ body {
 }
 
 .homepage-text {
-  max-width: 700px;
+  max-width: 760px;
 }
 
 .homepage-text h1 {
-  font-size: 110px;
+  font-size: clamp(3.2rem, 8vw, 7rem);
   font-weight: bold;
   line-height: 1;
   margin: 0;
@@ -146,9 +147,10 @@ body {
 .contact-card {
   background: rgba(255, 255, 255, 0.96);
   color: var(--dark);
-  padding: 28px;
+  padding: 30px;
   border-radius: 18px;
-  width: 420px;
+  width: 440px;
+  max-width: 100%;
   box-shadow: var(--shadow);
   border: 1px solid rgba(185, 28, 28, 0.12);
 }
@@ -158,6 +160,7 @@ body {
   margin-top: 0;
   margin-bottom: 20px;
   color: var(--primary-red);
+  font-size: 1.8rem;
 }
 
 .form-row {
@@ -168,12 +171,13 @@ body {
 .contact-card input {
   width: 100%;
   margin-top: 10px;
-  padding: 12px 14px;
+  padding: 13px 14px;
   border: 1px solid var(--light-gray);
   border-radius: 10px;
   background-color: var(--off-white);
   color: var(--dark);
   outline: none;
+  font-size: 1rem;
 }
 
 .contact-card input::placeholder {
@@ -196,6 +200,7 @@ body {
   margin-left: auto;
   margin-right: auto;
   font-weight: 700;
+  font-size: 1rem;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -208,18 +213,18 @@ body {
 .About-Section {
   background: var(--white);
   color: var(--dark);
-  padding: 90px 20px;
+  padding: 100px 20px;
   text-align: center;
   scroll-margin-top: 80px;
 }
 
 .About-Container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
 .About-Container h1 {
-  font-size: 3rem;
+  font-size: clamp(2.2rem, 3vw, 3.4rem);
   margin-bottom: 50px;
   color: var(--primary-red);
 }
@@ -232,7 +237,7 @@ body {
 }
 
 .About-Card {
-  padding: 26px 22px;
+  padding: 28px 24px;
   background: var(--off-white);
   border: 1px solid var(--light-gray);
   border-radius: 18px;
@@ -240,13 +245,13 @@ body {
 }
 
 .About-Card h2 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 2vw, 2rem);
   margin-bottom: 20px;
   color: var(--primary-red);
 }
 
 .About-Card p {
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   line-height: 1.7;
   margin: 0;
   color: var(--dark-soft);
@@ -264,23 +269,23 @@ body {
 .Services-Section {
   background: linear-gradient(to bottom, var(--primary-red-dark), var(--primary-red));
   color: var(--white);
-  padding: 90px 20px;
+  padding: 100px 20px;
   scroll-margin-top: 80px;
 }
 
 .Services-Container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   text-align: center;
 }
 
 .Services-Main-Title {
-  font-size: 3rem;
+  font-size: clamp(2.2rem, 3vw, 3.4rem);
   margin: 0 0 15px 0;
 }
 
 .Services-Intro {
-  max-width: 850px;
+  max-width: 900px;
   margin: 0 auto 50px auto;
   font-size: 1.15rem;
   line-height: 1.8;
@@ -298,7 +303,7 @@ body {
   color: var(--dark);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 18px;
-  padding: 30px 24px;
+  padding: 32px 24px;
   box-shadow: var(--shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -314,7 +319,7 @@ body {
 }
 
 .Services-Card h2 {
-  font-size: 1.8rem;
+  font-size: clamp(1.5rem, 2vw, 1.9rem);
   margin: 0 0 15px 0;
   color: var(--primary-red);
 }
@@ -335,7 +340,7 @@ body {
   }
 
   .homepage-text h1 {
-    font-size: 80px;
+    font-size: clamp(3rem, 10vw, 5rem);
   }
 
   .About-Grid,
@@ -346,27 +351,37 @@ body {
 
 @media (max-width: 768px) {
   .nav {
-    padding: 0 20px;
+    padding: 12px 20px;
     flex-wrap: wrap;
     height: auto;
     min-height: 70px;
     gap: 10px;
   }
 
+  .site-title {
+    font-size: 1.5rem;
+  }
+
   .nav ul {
-    gap: 1rem;
-    font-size: 18px;
+    gap: 0.9rem;
+    font-size: 16px;
     flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
+  }
+
+  .sign-in {
+    padding: 8px 20px;
+    font-size: 0.95rem;
   }
 
   .homepage-text h1 {
-    font-size: 56px;
+    font-size: clamp(2.8rem, 12vw, 4.2rem);
   }
 
   .contact-card {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
   }
 
   .form-row {
@@ -380,5 +395,40 @@ body {
 
   .homepage-overlay {
     padding: 120px 24px 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .homepage-overlay {
+    padding: 110px 16px 40px;
+    gap: 30px;
+  }
+
+  .homepage-text h1 {
+    font-size: clamp(2.4rem, 13vw, 3.4rem);
+  }
+
+  .contact-card {
+    padding: 20px 16px;
+  }
+
+  .Services-Card,
+  .About-Card {
+    padding: 20px 16px;
+  }
+
+  .Services-Main-Title,
+  .About-Container h1 {
+    font-size: 1.9rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  body {
+    font-size: 18px;
+  }
+
+  .homepage-text h1 {
+    font-size: clamp(4rem, 7vw, 7.5rem);
   }
 }
