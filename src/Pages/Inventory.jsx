@@ -10,6 +10,7 @@ export default function Inventory() {
   const [tires, setTires] = useState([]);
   const [searchSize, setSearchSize] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -68,20 +69,29 @@ export default function Inventory() {
 
   async function fetchTires(userId) {
     const currentUserId = userId || user?.id;
+  
     if (!currentUserId) {
       setTires([]);
+      setLoading(false);
       return;
     }
+  
+    setLoading(true);
+  
     const { data, error } = await supabase
       .from("tires")
-      .select("*")
+      .select("id, size, brand, model, condition, quantity, price, created_at")
       .eq("user_id", currentUserId)
       .order("created_at", { ascending: false });
+  
     if (error) {
       setMessage(error.message);
+      setLoading(false);
       return;
     }
+  
     setTires(data || []);
+    setLoading(false);
   }
 
   async function handleQuantityChange(id, currentQuantity, amount) {
@@ -355,7 +365,7 @@ export default function Inventory() {
                 <div className="dropdown-menu">
                   <button
                     type="button"
-                    onClick={() => alert("Settings clicked")}
+                    onClick={() => navigate("/settings")}
                   >
                     Settings
                   </button>
@@ -395,7 +405,9 @@ export default function Inventory() {
             <div className="card-header">
               <h2>All Inventory</h2>
             </div>
-            {filteredTires.length === 0 ? (
+            {loading ? (
+               <p className="empty-text">Loading inventory...</p>
+              ) : filteredTires.length === 0 ? (
               <p className="empty-text">No tires found</p>
             ) : (
               <div className="table-wrap">
