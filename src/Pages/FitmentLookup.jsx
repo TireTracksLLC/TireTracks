@@ -25,21 +25,23 @@ export default function FitmentLookup() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    getUser();
-  }, []);
+    async function getUser() {
+      const { data } = await supabase.auth.getUser();
 
-  async function getUser() {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) {
-      navigate("/signin");
-      return;
+      if (!data.user) {
+        navigate("/SignIn");
+        return;
+      }
+
+      setUser(data.user);
     }
-    setUser(data.user);
-  }
+
+    getUser();
+  }, [navigate]);
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/signin");
+    navigate("/SignIn");
   };
 
   function handleChange(e) {
@@ -83,7 +85,9 @@ export default function FitmentLookup() {
         <td>{front.rim || "-"}</td>
         <td>{front.tire_full || front.tire || "-"}</td>
         <td>{front.rim_offset != null ? `ET${front.rim_offset}` : "-"}</td>
-        <td>{front.tire_pressure?.psi ? `${front.tire_pressure.psi} PSI` : "-"}</td>
+        <td>
+          {front.tire_pressure?.psi ? `${front.tire_pressure.psi} PSI` : "-"}
+        </td>
       </tr>
     );
   }
@@ -123,7 +127,10 @@ export default function FitmentLookup() {
 
               {dropdownOpen && (
                 <div className="dropdown-menu">
-                  <button type="button" onClick={() => alert("Settings clicked")}>
+                  <button
+                    type="button"
+                    onClick={() => alert("Settings clicked")}
+                  >
                     Settings
                   </button>
                   <button type="button" onClick={handleSignOut}>
@@ -144,7 +151,8 @@ export default function FitmentLookup() {
             <div>
               <h1>Fitment Lookup</h1>
               <p className="page-subtitle">
-                Search vehicle wheel and tire fitment by make, model, year, and region.
+                Search vehicle wheel and tire fitment by make, model, year, and
+                region.
               </p>
             </div>
           </div>

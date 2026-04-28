@@ -18,6 +18,14 @@ html {
   --dark: #111827;
   --dark-soft: #1f2937;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+
+  /* Additional theme variables for consistency */
+  --primary-red-hover: #ffe4e6;
+  --placeholder-gray: #94a3b8;
+  --overlay-dark-strong: rgba(17, 24, 39, 0.72);
+  --overlay-dark-medium: rgba(17, 24, 39, 0.58);
+  --overlay-dark-light: rgba(17, 24, 39, 0.38);
+  --card-white-transparent: rgba(255, 255, 255, 0.96);
 }
 
 body {
@@ -87,7 +95,7 @@ body {
 .nav a:hover,
 .nav span:hover,
 .nav .nav-link:hover {
-  color: #ffe4e6;
+  color: var(--primary-red-hover);
 }
 
 .sign-in {
@@ -125,9 +133,9 @@ body {
   padding: 100px 60px 60px;
   background: linear-gradient(
     90deg,
-    rgba(17, 24, 39, 0.72) 0%,
-    rgba(17, 24, 39, 0.58) 45%,
-    rgba(17, 24, 39, 0.38) 100%
+    var(--overlay-dark-strong) 0%,
+    var(--overlay-dark-medium) 45%,
+    var(--overlay-dark-light) 100%
   );
   color: var(--white);
 }
@@ -145,7 +153,7 @@ body {
 }
 
 .contact-card {
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--card-white-transparent);
   color: var(--dark);
   padding: 30px;
   border-radius: 18px;
@@ -181,7 +189,7 @@ body {
 }
 
 .contact-card input::placeholder {
-  color: #94a3b8;
+  color: var(--placeholder-gray);
 }
 
 .contact-card input:focus {

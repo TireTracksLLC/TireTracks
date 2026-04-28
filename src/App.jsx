@@ -7,6 +7,7 @@ import SignIn from "./Pages/SignIn.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
 import Inventory from "./Pages/Inventory.jsx";
 import FitmentLookup from "./Pages/FitmentLookup.jsx";
+import Settings from "./Pages/Settings.jsx";
 
 function HomePage() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Inventory" element={<Inventory />} />
         <Route path="/Fitment" element={<FitmentLookup />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

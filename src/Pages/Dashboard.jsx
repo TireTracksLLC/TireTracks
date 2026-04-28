@@ -5,28 +5,28 @@ import { useNavigate } from "react-router-dom";
 import { signOut } from "../Services/auth";
 import {
   Chart as ChartJS,
-  ArcElement,
   Tooltip,
   Legend,
   CategoryScale,
   LinearScale,
   BarElement,
 } from "chart.js";
-import { Pie, Bar } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
+ChartJS.register(Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+
+function getThemeColor(variableName) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim();
+}
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [recentTires, setRecentTires] = useState([]);
   const [allTires, setAllTires] = useState([]);
+  const [recentLoading, setRecentLoading] = useState(true);
+  const [insightsLoading, setInsightsLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("Dashboard");
 
@@ -40,7 +40,7 @@ export default function Dashboard() {
     const { data } = await supabase.auth.getUser();
 
     if (!data.user) {
-      navigate("/signin");
+      navigate("/SignIn");
       return;
     }
 
@@ -50,38 +50,46 @@ export default function Dashboard() {
   }
 
   async function fetchRecentTires(userId) {
+    setRecentLoading(true);
+
     const { data, error } = await supabase
       .from("tires")
-      .select("*")
+      .select("id, size, brand, model, condition, quantity, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(5);
 
     if (error) {
       console.error("Error fetching recent tires:", error);
+      setRecentLoading(false);
       return;
     }
 
     setRecentTires(data || []);
+    setRecentLoading(false);
   }
 
   async function fetchAllTires(userId) {
+    setInsightsLoading(true);
+
     const { data, error } = await supabase
       .from("tires")
-      .select("*")
+      .select("id, size, brand, model, quantity, price")
       .eq("user_id", userId);
 
     if (error) {
       console.error("Error fetching all tires:", error);
+      setInsightsLoading(false);
       return;
     }
 
     setAllTires(data || []);
+    setInsightsLoading(false);
   }
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/signin");
+    navigate("/SignIn");
   };
 
   const handleNavClick = (page) => {
@@ -108,38 +116,92 @@ export default function Dashboard() {
     modelCounts[model] = (modelCounts[model] || 0) + qty;
   });
 
-  const chartPalette = [
-    "#b91c1c",
-    "#dc2626",
-    "#ef4444",
-    "#f87171",
-    "#fca5a5",
-    "#7f1d1d",
-  ];
+  const themeColors = {
+    primary: getThemeColor("--primary-red"),
+    primaryDark: getThemeColor("--primary-red-dark"),
+    primarySoft: getThemeColor("--primary-red-soft"),
+    dark: getThemeColor("--dark"),
+    white: getThemeColor("--white"),
+    grid: "rgba(17, 24, 39, 0.08)",
+  };
 
-  const sizeChartData = {
-    labels: Object.keys(sizeCounts),
+  const sortedSizes = Object.entries(sizeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+
+  const sortedModels = Object.entries(modelCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10);
+
+  const totalTires = allTires.reduce(
+    (sum, tire) => sum + (Number(tire.quantity) || 0),
+    0
+  );
+
+  const uniqueSizes = Object.keys(sizeCounts).length;
+
+  const lowStockItems = allTires.filter(
+    (tire) => (Number(tire.quantity) || 0) < 5
+  ).length;
+
+  const totalInventoryValue = allTires.reduce((sum, tire) => {
+    const quantity = Number(tire.quantity) || 0;
+    const price = Number(tire.price) || 0;
+    return sum + quantity * price;
+  }, 0);
+
+  const topSizeChartData = {
+    labels: sortedSizes.map(([size]) => size),
     datasets: [
       {
-        label: "Tires by Size",
-        data: Object.values(sizeCounts),
-        backgroundColor: chartPalette,
-        borderColor: "#ffffff",
-        borderWidth: 2,
+        label: "Top Tire Sizes",
+        data: sortedSizes.map(([, qty]) => qty),
+        backgroundColor: themeColors.primary,
+        borderRadius: 8,
       },
     ],
   };
 
   const modelChartData = {
-    labels: Object.keys(modelCounts),
+    labels: sortedModels.map(([model]) => model),
     datasets: [
       {
-        label: "Tires by Model",
-        data: Object.values(modelCounts),
-        backgroundColor: "#b91c1c",
+        label: "Top Models",
+        data: sortedModels.map(([, qty]) => qty),
+        backgroundColor: themeColors.primary,
         borderRadius: 8,
       },
     ],
+  };
+
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: themeColors.dark,
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: themeColors.dark,
+        },
+        grid: {
+          color: themeColors.grid,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: themeColors.dark,
+        },
+        grid: {
+          color: themeColors.grid,
+        },
+      },
+    },
   };
 
   return (
@@ -185,7 +247,7 @@ export default function Dashboard() {
 
               {dropdownOpen && (
                 <div className="dropdown-menu">
-                  <button type="button" onClick={() => alert("Settings clicked")}>
+                  <button type="button" onClick={() => navigate("/settings")}>
                     Settings
                   </button>
                   <button type="button" onClick={handleSignOut}>
@@ -211,12 +273,41 @@ export default function Dashboard() {
             </div>
           </div>
 
+          <div className="stats-grid">
+            <div className="stat-card">
+              <h3>Total Tires</h3>
+              <p>{totalTires}</p>
+            </div>
+
+            <div className="stat-card">
+              <h3>Unique Sizes</h3>
+              <p>{uniqueSizes}</p>
+            </div>
+
+            <div className="stat-card">
+              <h3>Low Stock Items</h3>
+              <p>{lowStockItems}</p>
+            </div>
+
+            <div className="stat-card">
+              <h3>Total Value</h3>
+              <p>
+                {totalInventoryValue.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                })}
+              </p>
+            </div>
+          </div>
+
           <div className="d-card">
             <div className="card-header">
               <h2>Recent Inventory</h2>
             </div>
 
-            {recentTires.length === 0 ? (
+            {recentLoading ? (
+              <p className="empty-text">Loading recent inventory...</p>
+            ) : recentTires.length === 0 ? (
               <p className="empty-text">No tires yet</p>
             ) : (
               <div className="table-wrap">
@@ -251,60 +342,20 @@ export default function Dashboard() {
               <h2>Inventory Insights</h2>
             </div>
 
-            {allTires.length === 0 ? (
+            {insightsLoading ? (
+              <p className="empty-text">Loading inventory insights...</p>
+            ) : allTires.length === 0 ? (
               <p className="empty-text">Add inventory to see charts.</p>
             ) : (
               <div className="chart-grid">
                 <div className="chart-box">
-                  <h3>Size Distribution</h3>
-                  <Pie
-                    data={sizeChartData}
-                    options={{
-                      plugins: {
-                        legend: {
-                          labels: {
-                            color: "#111827",
-                          },
-                        },
-                      },
-                    }}
-                  />
+                  <h3>Top Sizes</h3>
+                  <Bar data={topSizeChartData} options={barChartOptions} />
                 </div>
 
                 <div className="chart-box">
-                  <h3>Model Distribution</h3>
-                  <Bar
-                    data={modelChartData}
-                    options={{
-                      responsive: true,
-                      plugins: {
-                        legend: {
-                          labels: {
-                            color: "#111827",
-                          },
-                        },
-                      },
-                      scales: {
-                        x: {
-                          ticks: {
-                            color: "#111827",
-                          },
-                          grid: {
-                            color: "rgba(17, 24, 39, 0.08)",
-                          },
-                        },
-                        y: {
-                          beginAtZero: true,
-                          ticks: {
-                            color: "#111827",
-                          },
-                          grid: {
-                            color: "rgba(17, 24, 39, 0.08)",
-                          },
-                        },
-                      },
-                    }}
-                  />
+                  <h3>Top Models</h3>
+                  <Bar data={modelChartData} options={barChartOptions} />
                 </div>
               </div>
             )}
