@@ -8,6 +8,8 @@ import Dashboard from "./Pages/Dashboard.jsx";
 import Inventory from "./Pages/Inventory.jsx";
 import FitmentLookup from "./Pages/FitmentLookup.jsx";
 import Settings from "./Pages/Settings.jsx";
+import SignUp from "./Pages/SignUp";
+
 
 function HomePage() {
   return (
@@ -30,6 +32,7 @@ export default function App() {
         <Route path="/Inventory" element={<Inventory />} />
         <Route path="/Fitment" element={<FitmentLookup />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </Router>
   );
