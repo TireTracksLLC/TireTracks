@@ -97,8 +97,8 @@ export default function Inventory() {
   async function handleQuantityChange(id, currentQuantity, amount) {
     setMessage("");
     const newQuantity = currentQuantity + amount;
-    if (newQuantity < 1) {
-      setMessage("Quantity cannot go below 1.");
+    if (newQuantity < 0) {
+      setMessage("Quantity cannot go below 0.");
       return;
     }
     setTires((prev) =>
@@ -129,14 +129,14 @@ export default function Inventory() {
   async function confirmQuantityChange() {
     if (!pendingQtyChange) return;
     const amount = parseInt(pendingQtyChange.amount, 10);
-    if (!Number.isInteger(amount) || amount < 1) {
+    if (!Number.isInteger(amount) || amount < 0) {
       setMessage("Enter a valid amount.");
       return;
     }
     const changeAmount = pendingQtyChange.type === "add" ? amount : -amount;
     const newQuantity = pendingQtyChange.tire.quantity + changeAmount;
-    if (newQuantity < 1) {
-      setMessage("Quantity cannot go below 1.");
+    if (newQuantity < 0) {
+      setMessage("Quantity cannot go below 0.");
       return;
     }
     await handleQuantityChange(
@@ -170,8 +170,8 @@ export default function Inventory() {
       setAddMsg("Pick a valid condition.");
       return;
     }
-    if (!Number.isInteger(quantityToAdd) || quantityToAdd < 1) {
-      setAddMsg("Quantity must be 1 or more.");
+    if (!Number.isInteger(quantityToAdd) || quantityToAdd < 0) {
+      setAddMsg("Quantity must be 0 or more.");
       return;
     }
     if (price !== null && (Number.isNaN(price) || price < 0)) {
