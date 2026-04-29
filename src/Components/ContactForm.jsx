@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 
 export default function ContactForm() {
+  const formRef = useRef(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     console.log("Contact form submitted");
     setStatusMessage("Sending message...");
 
     const serviceId = "service_mjwaxgi";
-    const templateId = "template_9qqxs05";
+    const templateId = "template_qzcjtj8q";
     const publicKey = "iKBFwxrnh8YaBao_j";
 
     const hasMissingConfig =
@@ -32,7 +33,19 @@ export default function ContactForm() {
       return;
     }
 
-    const form = e.currentTarget;
+    const form = formRef.current;
+
+    if (!form) {
+      setStatusMessage("Contact form is not ready. Please refresh and try again.");
+      return;
+    }
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      setStatusMessage("Please fill out the required fields.");
+      return;
+    }
+
     const formData = new FormData(form);
 
     const templateParams = {
@@ -64,7 +77,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="contact-card" onSubmit={handleSubmit}>
+    <form ref={formRef} className="contact-card" onSubmit={handleSubmit} noValidate>
       <h3>Contact Us</h3>
 
       <div className="form-row">
@@ -77,9 +90,9 @@ export default function ContactForm() {
 
       <button
         className="submit-btn"
-        type="submit"
+        type="button"
         disabled={isSending}
-        onClick={() => console.log("Submit button clicked")}
+        onClick={handleSubmit}
       >
         {isSending ? "Sending..." : "Submit"}
       </button>
