@@ -153,6 +153,8 @@ body {
 }
 
 .contact-card {
+  position: relative;
+  z-index: 20;
   background: var(--card-white-transparent);
   color: var(--dark);
   padding: 30px;
@@ -215,6 +217,14 @@ body {
 .submit-btn:hover {
   background-color: var(--primary-red-dark);
   transform: translateY(-1px);
+}
+
+.contact-status-message {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--primary-red);
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
 /* ABOUT */
