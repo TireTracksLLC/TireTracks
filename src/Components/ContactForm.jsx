@@ -12,7 +12,7 @@ export default function ContactForm() {
     setStatusMessage("Sending message...");
 
     const serviceId = "service_mjwaxgi";
-    const templateId = "template_qzcjtj8q";
+    const templateId = "template_b2n29ae";
     const publicKey = "iKBFwxrnh8YaBao_j";
 
     const hasMissingConfig =
