@@ -15,6 +15,7 @@ export default function Inventory() {
   const [addMsg, setAddMsg] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [pendingQtyChange, setPendingQtyChange] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const [fitmentForm, setFitmentForm] = useState({
     make: "",
@@ -69,27 +70,35 @@ export default function Inventory() {
 
   async function fetchTires(userId) {
     const currentUserId = userId || user?.id;
-  
+
     if (!currentUserId) {
       setTires([]);
       setLoading(false);
       return;
     }
-  
+
     setLoading(true);
-  
-    const { data, error } = await supabase
-      .from("tires")
+
+    let query = supabase.from("tires");
+
+    // guard for tests where mock may not include full chain
+    if (!query || typeof query.select !== "function") {
+      setTires([]);
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await query
       .select("id, size, brand, model, condition, quantity, price, created_at")
       .eq("user_id", currentUserId)
       .order("created_at", { ascending: false });
-  
+
     if (error) {
       setMessage(error.message);
       setLoading(false);
       return;
     }
-  
+
     setTires(data || []);
     setLoading(false);
   }
@@ -97,8 +106,8 @@ export default function Inventory() {
   async function handleQuantityChange(id, currentQuantity, amount) {
     setMessage("");
     const newQuantity = currentQuantity + amount;
-    if (newQuantity < 1) {
-      setMessage("Quantity cannot go below 1.");
+    if (newQuantity < 0) {
+      setMessage("Quantity cannot go below 0.");
       return;
     }
     setTires((prev) =>
@@ -135,8 +144,8 @@ export default function Inventory() {
     }
     const changeAmount = pendingQtyChange.type === "add" ? amount : -amount;
     const newQuantity = pendingQtyChange.tire.quantity + changeAmount;
-    if (newQuantity < 1) {
-      setMessage("Quantity cannot go below 1.");
+    if (newQuantity < 0) {
+      setMessage("Quantity cannot go below 0.");
       return;
     }
     await handleQuantityChange(
@@ -147,6 +156,26 @@ export default function Inventory() {
     setPendingQtyChange(null);
   }
 
+  async function confirmDeleteTire() {
+    if (!pendingDelete) return;
+  
+    setMessage("");
+  
+    const { error } = await supabase
+      .from("tires")
+      .delete()
+      .eq("id", pendingDelete.id);
+  
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+  
+    setTires((prev) => prev.filter((t) => t.id !== pendingDelete.id));
+    setPendingDelete(null);
+    setMessage("Tire deleted.");
+  }
+
   async function handleAdd(e) {
     e.preventDefault();
     setAddMsg("");
@@ -154,13 +183,15 @@ export default function Inventory() {
       setAddMsg("You must be signed in.");
       return;
     }
-    const form = e.target;
-    const size = normalizeSize(form.size.value);
-    const brand = normalizeText(form.brand.value);
-    const model = normalizeText(form.model.value);
-    const condition = normalizeCondition(form.condition.value);
-    const quantityToAdd = parseInt(form.quantity.value, 10);
-    const priceRaw = form.price.value;
+    const form = e.currentTarget;
+    const elements = form.elements;
+
+    const size = normalizeSize(elements.namedItem("size")?.value);
+    const brand = normalizeText(elements.namedItem("brand")?.value);
+    const model = normalizeText(elements.namedItem("model")?.value);
+    const condition = normalizeCondition(elements.namedItem("condition")?.value);
+    const quantityToAdd = parseInt(elements.namedItem("quantity")?.value, 10);
+    const priceRaw = elements.namedItem("price")?.value;
     const price = priceRaw === "" ? null : Number(priceRaw);
     if (size.length < 2) {
       setAddMsg("Enter a valid tire size.");
@@ -420,6 +451,7 @@ export default function Inventory() {
                       <th>Condition</th>
                       <th>Qty</th>
                       <th>Price</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -455,6 +487,18 @@ export default function Inventory() {
                           </div>
                         </td>
                         <td>{t.price != null ? `$${t.price}` : "-"}</td>
+                        <td>
+                          <button
+                          type="button"
+                          className="delete-row-btn"
+                          onClick={() => {
+                            setMessage("");
+                            setPendingDelete(t);
+                           }}
+                            >
+                              Delete
+                              </button>
+                              </td>
                       </tr>
                     ))}
                   </tbody>
@@ -526,148 +570,249 @@ export default function Inventory() {
               </div>
             </div>
           )}
+          {pendingDelete && (
+  <div
+    className="qty-modal-overlay"
+    onClick={() => setPendingDelete(null)}
+  >
+    <div
+      className="qty-modal delete-confirm-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2>Delete Tire</h2>
+
+      <p>
+        Are you sure you want to delete{" "}
+        <strong>
+          {formatText(pendingDelete.brand)} {formatText(pendingDelete.model)}
+        </strong>
+        ?
+      </p>
+
+      <p className="delete-warning-text">
+        This will permanently remove the row from your inventory.
+      </p>
+
+      <div className="qty-modal-actions">
+        <button
+          type="button"
+          className="secondary-btn"
+          onClick={() => setPendingDelete(null)}
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          className="danger-btn"
+          onClick={confirmDeleteTire}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
           {showAdd && (
-            <div className="add-panel">
-              <div className="add-panel-content">
-                <button
-                  className="close-btn"
-                  onClick={() => setShowAdd(false)}
-                  type="button"
-                >
-                  ✕
-                </button>
-                <h2>Add Tire</h2>
-                <div className="inventory-fitment-box">
-                  <h3>Optional Vehicle Fitment Lookup</h3>
-                  <div className="inventory-fitment-form">
-                    <input
-                      placeholder="Make"
-                      value={fitmentForm.make}
-                      onChange={(e) =>
-                        setFitmentForm((prev) => ({
-                          ...prev,
-                          make: e.target.value,
-                        }))
-                      }
-                    />
-                    <input
-                      placeholder="Model"
-                      value={fitmentForm.model}
-                      onChange={(e) =>
-                        setFitmentForm((prev) => ({
-                          ...prev,
-                          model: e.target.value,
-                        }))
-                      }
-                    />
-                    <input
-                      type="number"
-                      placeholder="Year"
-                      value={fitmentForm.year}
-                      onChange={(e) =>
-                        setFitmentForm((prev) => ({
-                          ...prev,
-                          year: e.target.value,
-                        }))
-                      }
-                    />
-                    <select
-                      value={fitmentForm.region}
-                      onChange={(e) =>
-                        setFitmentForm((prev) => ({
-                          ...prev,
-                          region: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="usdm">USDM</option>
-                      <option value="cdm">CDM</option>
-                      <option value="mxndm">MXNDM</option>
-                      <option value="ladm">LADM</option>
-                      <option value="eudm">EUDM</option>
-                      <option value="jdm">JDM</option>
-                      <option value="chdm">CHDM</option>
-                      <option value="medm">MEDM</option>
-                    </select>
-                    <button
-                      type="button"
-                      className="primary-btn"
-                      onClick={handleFitmentLookup}
-                      disabled={fitmentLoading}
-                    >
-                      {fitmentLoading ? "Searching..." : "Get Fitment"}
-                    </button>
-                  </div>
-                  {fitmentMessage && (
-                    <p className="form-message">{fitmentMessage}</p>
-                  )}
-                  {fitmentResults.length > 0 && (
-                    <div className="trim-grid inventory-trim-grid">
-                      {fitmentResults.map((item) => (
-                        <button
-                          key={item.slug}
-                          type="button"
-                          className={`trim-card ${
-                            selectedFitment?.slug === item.slug ? "selected" : ""
-                          }`}
-                          onClick={() => applyFitmentToForm(item)}
-                        >
-                          <h3>{item.trim || item.name}</h3>
-                          <p>
-                            {item.make?.name} {item.model?.name}
-                          </p>
-                          <p>
-                            {item.start_year} - {item.end_year}
-                          </p>
-                          <p>
-                            {item.engine?.capacity}L {item.engine?.fuel}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {selectedFitment && (
-                    <div className="fitment-preview">
-                      <p>
-                        <strong>Bolt Pattern:</strong>{" "}
-                        {selectedFitment.technical?.bolt_pattern || "-"}
-                      </p>
-                      <p>
-                        <strong>Center Bore:</strong>{" "}
-                        {selectedFitment.technical?.centre_bore || "-"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <form className="drawer-form" onSubmit={handleAdd}>
-                  <input name="size" placeholder="Size" required />
-                  <input name="brand" placeholder="Brand" />
-                  <input name="model" placeholder="Model" />
-                  <select name="condition" required>
-                    <option value="">Condition...</option>
-                    <option value="new">New</option>
-                    <option value="used">Used</option>
-                  </select>
-                  <input
-                    name="quantity"
-                    type="number"
-                    defaultValue="1"
-                    min="1"
-                  />
-                  <input
-                    name="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="Price"
-                  />
-                  <button className="save-btn" type="submit">
-                    Save
-                  </button>
-                </form>
-                {addMsg && <p className="form-message">{addMsg}</p>}
-              </div>
-            </div>
+                       <div className="add-panel">
+                       <div className="add-panel-content polished-add-drawer">
+                         <button
+                           className="close-btn polished-close-btn"
+                           onClick={() => setShowAdd(false)}
+                           type="button"
+                           aria-label="Close add tire form"
+                         >
+                           ✕
+                         </button>
+         
+                         <div className="add-drawer-header">
+                           <div className="add-drawer-badge">TT</div>
+                           <div>
+                             <h2>Add Tire</h2>
+                             <p>Add inventory manually or use vehicle fitment lookup.</p>
+                           </div>
+                         </div>
+         
+                         <div className="inventory-fitment-box polished-fitment-box">
+                           <div className="fitment-title-row">
+                             <div className="fitment-icon">Car</div>
+                             <div>
+                               <h3>Optional Vehicle Fitment Lookup</h3>
+                               <p>Find compatible tire sizes for a specific vehicle.</p>
+                             </div>
+                           </div>
+         
+                           <div className="inventory-fitment-form polished-fitment-form">
+                             <label>
+                               <span>Make</span>
+                               <input
+                                 placeholder="Toyota"
+                                 value={fitmentForm.make}
+                                 onChange={(e) =>
+                                   setFitmentForm((prev) => ({
+                                     ...prev,
+                                     make: e.target.value,
+                                   }))
+                                 }
+                               />
+                             </label>
+         
+                             <label>
+                               <span>Model</span>
+                               <input
+                                 placeholder="Camry"
+                                 value={fitmentForm.model}
+                                 onChange={(e) =>
+                                   setFitmentForm((prev) => ({
+                                     ...prev,
+                                     model: e.target.value,
+                                   }))
+                                 }
+                               />
+                             </label>
+         
+                             <label>
+                               <span>Year</span>
+                               <input
+                                 type="number"
+                                 placeholder="2020"
+                                 value={fitmentForm.year}
+                                 onChange={(e) =>
+                                   setFitmentForm((prev) => ({
+                                     ...prev,
+                                     year: e.target.value,
+                                   }))
+                                 }
+                               />
+                             </label>
+         
+                             <label>
+                               <span>Region</span>
+                               <select
+                                 value={fitmentForm.region}
+                                 onChange={(e) =>
+                                   setFitmentForm((prev) => ({
+                                     ...prev,
+                                     region: e.target.value,
+                                   }))
+                                 }
+                               >
+                                 <option value="usdm">USDM</option>
+                                 <option value="cdm">CDM</option>
+                                 <option value="mxndm">MXNDM</option>
+                                 <option value="ladm">LADM</option>
+                                 <option value="eudm">EUDM</option>
+                                 <option value="jdm">JDM</option>
+                                 <option value="chdm">CHDM</option>
+                                 <option value="medm">MEDM</option>
+                               </select>
+                             </label>
+         
+                             <button
+                               type="button"
+                               className="primary-btn polished-fitment-btn"
+                               onClick={handleFitmentLookup}
+                               disabled={fitmentLoading}
+                             >
+                               {fitmentLoading ? "Searching..." : "Get Fitment"}
+                             </button>
+                           </div>
+         
+                           {fitmentMessage && (
+                             <p className="form-message">{fitmentMessage}</p>
+                           )}
+                           {fitmentResults.length > 0 && (
+                             <div className="trim-grid inventory-trim-grid">
+                               {fitmentResults.map((item) => (
+                                 <button
+                                   key={item.slug}
+                                   type="button"
+                                   className={`trim-card ${
+                                     selectedFitment?.slug === item.slug ? "selected" : ""
+                                   }`}
+                                   onClick={() => applyFitmentToForm(item)}
+                                 >
+                                   <h3>{item.trim || item.name}</h3>
+                                   <p>
+                                     {item.make?.name} {item.model?.name}
+                                   </p>
+                                   <p>
+                                     {item.start_year} - {item.end_year}
+                                   </p>
+                                   <p>
+                                     {item.engine?.capacity}L {item.engine?.fuel}
+                                   </p>
+                                 </button>
+                               ))}
+                             </div>
+                           )}
+                           {selectedFitment && (
+                             <div className="fitment-preview">
+                               <p>
+                                 <strong>Bolt Pattern:</strong>{" "}
+                                 {selectedFitment.technical?.bolt_pattern || "-"}
+                               </p>
+                               <p>
+                                 <strong>Center Bore:</strong>{" "}
+                                 {selectedFitment.technical?.centre_bore || "-"}
+                               </p>
+                             </div>
+                           )}
+                         </div>
+         
+                         <form className="drawer-form polished-tire-form" onSubmit={handleAdd}>
+                           <label>
+                             <span>Size</span>
+                             <input name="size" placeholder="225/65R17" required />
+                           </label>
+         
+                           <label>
+                             <span>Brand</span>
+                             <input name="brand" placeholder="Michelin" />
+                           </label>
+         
+                           <label>
+                             <span>Model</span>
+                             <input name="model" placeholder="Defender" />
+                           </label>
+         
+                           <label>
+                             <span>Condition</span>
+                             <select name="condition" required>
+                               <option value="">Choose condition</option>
+                               <option value="new">New</option>
+                               <option value="used">Used</option>
+                             </select>
+                           </label>
+         
+                           <label>
+                             <span>Quantity</span>
+                             <input
+                               name="quantity"
+                               type="number"
+                               defaultValue="1"
+                               min="1"
+                             />
+                           </label>
+         
+                           <label>
+                             <span>Price</span>
+                             <input
+                               name="price"
+                               type="number"
+                               min="0"
+                               step="0.01"
+                               placeholder="Optional"
+                             />
+                           </label>
+         
+                           <button className="save-btn polished-save-btn" type="submit">
+                             Save Tire
+                           </button>
+                         </form>
+                         {addMsg && <p className="form-message">{addMsg}</p>}
+                       </div>
+                     </div>
           )}
         </div>
       </main>

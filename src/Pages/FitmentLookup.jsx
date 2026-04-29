@@ -129,7 +129,7 @@ export default function FitmentLookup() {
                 <div className="dropdown-menu">
                   <button
                     type="button"
-                    onClick={() => alert("Settings clicked")}
+                    onClick={() => navigate("/settings")}
                   >
                     Settings
                   </button>
